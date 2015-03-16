@@ -491,6 +491,7 @@ typedef struct {
     const char *frag_source;
 } ShaderData;
 
+
 static ShaderData shaders[NUM_SHADERS] = {
     
     /* SHADER_COLOR */
@@ -840,6 +841,42 @@ void DrawGLScene(SDL_Window *window, GLuint texture, GLfloat * texcoord)
     // swap buffers to display, since we're double buffered.
     SDL_GL_SwapWindow(window);
     
+    
+}
+
+
+typedef struct {
+    int *width;
+    int *height;
+    int *x;
+    int *y;
+    float *xvelocity;
+    float *yvelocity;
+} Sprite;
+
+typedef struct {
+    
+    Sprite *chain[6];
+    
+} SpriteChain;
+
+SpriteChain InitSprites ( Sprite *spritearray[6], SpriteChain *newchain )
+{
+    for( int jj = 0; jj <= 6; jj++)
+    {
+        *spritearray[jj]->height = 240;
+        *spritearray[jj]->width = 190;
+        *spritearray[jj]->x = rand() * (880 - 190);
+        *spritearray[jj]->y = rand() * (880 - 240);
+        *spritearray[jj]->xvelocity = 0.0;
+        *spritearray[jj]->yvelocity = 0.0;
+        
+        //populate the sprite data
+        *newchain->chain[jj] = *spritearray[jj];
+        
+    }
+    
+    return *newchain;
     
 }
 
