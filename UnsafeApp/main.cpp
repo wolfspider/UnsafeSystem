@@ -42,16 +42,213 @@
 
 /* Set to 1 if the input can have superluminant pixels.  Cairo doesn't
  * produce them. */
-#define DO_CLAMP_INPUT 1
+#define DO_CLAMP_INPUT 0
 
 #define pi 3.14159265358979323846264338327
 
+double scale = 1.0;
 
 static double animpts[NUMPTS * 2];
 static double deltas[NUMPTS * 2];
 static int fill_gradient = 1;
 
 GLuint texture;
+
+
+
+int cairo_code_tape_get_width() { return 512; }
+int cairo_code_tape_get_height() { return 512; }
+void cairo_code_tape_render(cairo_t *cr) {
+    cairo_surface_t *temp_surface;
+    cairo_t *old_cr;
+    cairo_pattern_t *pattern;
+    cairo_matrix_t matrix;
+    
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    pattern = cairo_pattern_create_rgba(1,1,1,1);
+    cairo_set_source(cr, pattern);
+    cairo_pattern_destroy(pattern);
+    
+    if (scale >= 3.0)
+    {
+        scale = 1.0;
+    }
+    
+    scale += 0.01;
+    
+    cairo_translate(cr, -scale * 50, -scale * 50);
+    cairo_scale (cr, scale, scale);
+    
+    cairo_new_path(cr);
+    cairo_move_to(cr, 276.128906, 335.082031);
+    cairo_line_to(cr, 283.789063, 350.203125);
+    cairo_line_to(cr, 283.789063, 360.039063);
+    cairo_line_to(cr, 286.828125, 360.039063);
+    cairo_line_to(cr, 286.828125, 350.203125);
+    cairo_line_to(cr, 293.90625, 335.117188);
+    cairo_line_to(cr, 290.9375, 335.117188);
+    cairo_line_to(cr, 285.414063, 347.199219);
+    cairo_line_to(cr, 279.304688, 335.082031);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 255.574219, 360.074219);
+    cairo_line_to(cr, 258.335938, 360.074219);
+    cairo_line_to(cr, 260.753906, 352.757813);
+    cairo_line_to(cr, 268.65625, 352.757813);
+    cairo_line_to(cr, 271.417969, 360.039063);
+    cairo_line_to(cr, 274.320313, 360.039063);
+    cairo_line_to(cr, 264.6875, 334.667969);
+    cairo_line_to(cr, 264.378906, 334.667969);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 268.035156, 350.582031);
+    cairo_line_to(cr, 261.304688, 350.582031);
+    cairo_line_to(cr, 264.515625, 341.089844);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 237.644531, 335.117188);
+    cairo_line_to(cr, 237.644531, 360.074219);
+    cairo_line_to(cr, 252.558594, 360.074219);
+    cairo_line_to(cr, 252.558594, 357.660156);
+    cairo_line_to(cr, 240.546875, 357.660156);
+    cairo_line_to(cr, 240.546875, 336.464844);
+    cairo_curve_to(cr, 240.546875, 336.289063, 240.566406, 336.152344, 240.605469, 336.054688);
+    cairo_curve_to(cr, 240.640625, 335.953125, 240.691406, 335.851563, 240.75, 335.746094);
+    cairo_curve_to(cr, 240.785156, 335.6875, 240.820313, 335.605469, 240.859375, 335.496094);
+    cairo_curve_to(cr, 240.898438, 335.386719, 240.90625, 335.261719, 240.890625, 335.117188);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 217.335938, 335.117188);
+    cairo_line_to(cr, 217.335938, 360.039063);
+    cairo_line_to(cr, 220.234375, 360.039063);
+    cairo_line_to(cr, 220.234375, 349.027344);
+    cairo_line_to(cr, 225.136719, 349.027344);
+    cairo_curve_to(cr, 225.910156, 349.042969, 226.675781, 349.003906, 227.433594, 348.914063);
+    cairo_curve_to(cr, 228.1875, 348.820313, 228.941406, 348.589844, 229.699219, 348.21875);
+    cairo_curve_to(cr, 230.851563, 347.613281, 231.726563, 346.765625, 232.320313, 345.6875);
+    cairo_curve_to(cr, 232.914063, 344.605469, 233.210938, 343.421875, 233.214844, 342.136719);
+    cairo_curve_to(cr, 233.214844, 340.851563, 232.914063, 339.660156, 232.3125, 338.558594);
+    cairo_curve_to(cr, 231.714844, 337.457031, 230.824219, 336.59375, 229.644531, 335.964844);
+    cairo_curve_to(cr, 228.867188, 335.574219, 228.085938, 335.335938, 227.304688, 335.238281);
+    cairo_curve_to(cr, 226.523438, 335.144531, 225.730469, 335.101563, 224.929688, 335.117188);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 220.234375, 337.742188);
+    cairo_line_to(cr, 224.929688, 337.742188);
+    cairo_curve_to(cr, 225.449219, 337.730469, 225.960938, 337.757813, 226.46875, 337.816406);
+    cairo_curve_to(cr, 226.976563, 337.878906, 227.480469, 338.03125, 227.988281, 338.277344);
+    cairo_curve_to(cr, 228.765625, 338.679688, 229.355469, 339.242188, 229.75, 339.953125);
+    cairo_curve_to(cr, 230.148438, 340.667969, 230.347656, 341.4375, 230.347656, 342.261719);
+    cairo_curve_to(cr, 230.347656, 343.070313, 230.160156, 343.8125, 229.785156, 344.488281);
+    cairo_curve_to(cr, 229.40625, 345.164063, 228.859375, 345.6875, 228.132813, 346.066406);
+    cairo_curve_to(cr, 227.65625, 346.300781, 227.175781, 346.449219, 226.695313, 346.503906);
+    cairo_curve_to(cr, 226.214844, 346.5625, 225.730469, 346.585938, 225.242188, 346.578125);
+    cairo_line_to(cr, 220.199219, 346.578125);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 311.691406, 214.988281);
+    cairo_line_to(cr, 302.511719, 208.308594);
+    cairo_line_to(cr, 296.800781, 218.121094);
+    cairo_line_to(cr, 295.035156, 206.90625);
+    cairo_line_to(cr, 284.0625, 209.808594);
+    cairo_line_to(cr, 290.738281, 200.628906);
+    cairo_line_to(cr, 280.929688, 194.921875);
+    cairo_line_to(cr, 292.140625, 193.152344);
+    cairo_line_to(cr, 289.242188, 182.179688);
+    cairo_line_to(cr, 298.417969, 188.859375);
+    cairo_line_to(cr, 304.128906, 179.046875);
+    cairo_line_to(cr, 305.894531, 190.257813);
+    cairo_line_to(cr, 316.871094, 187.359375);
+    cairo_line_to(cr, 310.191406, 196.539063);
+    cairo_line_to(cr, 320.003906, 202.246094);
+    cairo_line_to(cr, 308.789063, 204.015625);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 225.347656, 209.808594);
+    cairo_line_to(cr, 213.609375, 207.703125);
+    cairo_line_to(cr, 212.710938, 219.59375);
+    cairo_line_to(cr, 205.902344, 209.804688);
+    cairo_line_to(cr, 196.855469, 217.578125);
+    cairo_line_to(cr, 198.960938, 205.839844);
+    cairo_line_to(cr, 187.070313, 204.941406);
+    cairo_line_to(cr, 196.859375, 198.128906);
+    cairo_line_to(cr, 189.085938, 189.085938);
+    cairo_line_to(cr, 200.824219, 191.191406);
+    cairo_line_to(cr, 201.722656, 179.300781);
+    cairo_line_to(cr, 208.535156, 189.089844);
+    cairo_line_to(cr, 217.578125, 181.316406);
+    cairo_line_to(cr, 215.472656, 193.054688);
+    cairo_line_to(cr, 227.363281, 193.953125);
+    cairo_line_to(cr, 217.574219, 200.761719);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 170.757813, 349.054688);
+    cairo_line_to(cr, 170.757813, 306.554688);
+    cairo_line_to(cr, 339.757813, 306.554688);
+    cairo_line_to(cr, 339.757813, 391.554688);
+    cairo_line_to(cr, 170.757813, 391.554688);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 57.757813, 231.554688);
+    cairo_line_to(cr, 57.757813, 147.554688);
+    cairo_line_to(cr, 99.757813, 147.554688);
+    cairo_line_to(cr, 99.757813, 315.554688);
+    cairo_line_to(cr, 57.757813, 315.554688);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 410.757813, 231.554688);
+    cairo_line_to(cr, 410.757813, 147.554688);
+    cairo_line_to(cr, 451.757813, 147.554688);
+    cairo_line_to(cr, 451.757813, 315.554688);
+    cairo_line_to(cr, 410.757813, 315.554688);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 137.632813, 273.871094);
+    cairo_curve_to(cr, 131.515625, 270.074219, 131.757813, 273.121094, 131.757813, 200.054688);
+    cairo_curve_to(cr, 131.757813, 140.113281, 131.925781, 133.082031, 133.394531, 130.59375);
+    cairo_curve_to(cr, 136.703125, 124.992188, 138.671875, 124.554688, 160.613281, 124.554688);
+    cairo_curve_to(cr, 176.070313, 124.554688, 180.84375, 124.855469, 181.460938, 125.863281);
+    cairo_curve_to(cr, 181.898438, 126.585938, 183.371094, 127.9375, 184.730469, 128.863281);
+    cairo_curve_to(cr, 186.992188, 130.410156, 192.980469, 130.554688, 254.757813, 130.554688);
+    cairo_curve_to(cr, 316.535156, 130.554688, 322.523438, 130.410156, 324.785156, 128.863281);
+    cairo_curve_to(cr, 326.144531, 127.9375, 327.617188, 126.585938, 328.058594, 125.863281);
+    cairo_curve_to(cr, 328.675781, 124.851563, 333.535156, 124.554688, 349.402344, 124.554688);
+    cairo_curve_to(cr, 371.890625, 124.554688, 373.800781, 124.972656, 377.125, 130.59375);
+    cairo_curve_to(cr, 378.59375, 133.082031, 378.757813, 140.113281, 378.757813, 200.054688);
+    cairo_curve_to(cr, 378.757813, 273.355469, 379.015625, 270.199219, 372.71875, 273.917969);
+    cairo_curve_to(cr, 370.199219, 275.40625, 359.65625, 275.550781, 255.105469, 275.527344);
+    cairo_curve_to(cr, 150.703125, 275.503906, 140.019531, 275.351563, 137.632813, 273.871094);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 355.757813, 200.054688);
+    cairo_line_to(cr, 355.757813, 147.554688);
+    cairo_line_to(cr, 154.757813, 147.554688);
+    cairo_line_to(cr, 154.757813, 252.554688);
+    cairo_line_to(cr, 355.757813, 252.554688);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 169.632813, 240.871094);
+    cairo_curve_to(cr, 163.816406, 237.261719, 163.757813, 236.859375, 163.757813, 199.554688);
+    cairo_curve_to(cr, 163.757813, 162.097656, 163.8125, 161.726563, 169.796875, 158.191406);
+    cairo_curve_to(cr, 172.300781, 156.710938, 180.46875, 156.554688, 254.757813, 156.554688);
+    cairo_curve_to(cr, 329.050781, 156.554688, 337.214844, 156.710938, 339.71875, 158.191406);
+    cairo_curve_to(cr, 345.703125, 161.726563, 345.757813, 162.097656, 345.757813, 199.554688);
+    cairo_curve_to(cr, 345.757813, 237.011719, 345.703125, 237.382813, 339.71875, 240.917969);
+    cairo_curve_to(cr, 337.214844, 242.398438, 329.070313, 242.550781, 254.605469, 242.527344);
+    cairo_curve_to(cr, 180.25, 242.503906, 172.003906, 242.34375, 169.632813, 240.871094);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 322.757813, 199.554688);
+    cairo_line_to(cr, 322.757813, 179.554688);
+    cairo_line_to(cr, 186.757813, 179.554688);
+    cairo_line_to(cr, 186.757813, 219.554688);
+    cairo_line_to(cr, 322.757813, 219.554688);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 201.757813, 103.054688);
+    cairo_line_to(cr, 201.757813, 98.554688);
+    cairo_line_to(cr, 307.757813, 98.554688);
+    cairo_line_to(cr, 307.757813, 107.554688);
+    cairo_line_to(cr, 201.757813, 107.554688);
+    cairo_close_path(cr);
+    cairo_move_to(cr, 201.757813, 103.054688);
+    cairo_set_tolerance(cr, 0.1);
+    cairo_set_antialias(cr, CAIRO_ANTIALIAS_DEFAULT);
+    cairo_set_fill_rule(cr, CAIRO_FILL_RULE_WINDING);
+    cairo_fill_preserve(cr);
+    /********************/
+    
+    cairosdl_destroy (cr, cairo_get_target (cr));
+    
+}
+
+
+
 
 static void
 gear (cairo_t *cr,
@@ -98,28 +295,6 @@ gear (cairo_t *cr,
     }
     
     cairo_close_path (cr);
-}
-
-void
-trap_setup (cairo_surface_t *target, int w, int h)
-{
-    int i;
-    
-    (void)target;
-    
-    
-    for (i = 0; i < (NUMPTS * 2); i += 2) {
-        animpts[i + 0] = (float) (((double)(rand()) / RAND_MAX) * w);
-        animpts[i + 1] = (float) (((double)(rand()) / RAND_MAX) * h);
-        deltas[i + 0] = (float) (((double)(rand()) / RAND_MAX) * 6.0 + 4.0);
-        deltas[i + 1] = (float) (((double)(rand()) / RAND_MAX) * 6.0 + 4.0);
-        if (animpts[i + 0] > w / 2.0) {
-            deltas[i + 0] = -deltas[i + 0];
-        }
-        if (animpts[i + 1] > h / 2.0) {
-            deltas[i + 1] = -deltas[i + 1];
-        }
-    }
 }
 
 static void
@@ -306,17 +481,17 @@ trap_render (cairo_t *cr, int w, int h)
     cairo_set_line_width (cr, LINEWIDTH);
     cairo_stroke (cr);
     
-    double x, y, ux=1, uy=1;
-    char text[]="Composite";
-
+    double x, y, px, ux=1, uy=1, dashlength;
+    char text[]="";
     cairo_font_extents_t fe;
     cairo_text_extents_t te;
     
     /* Prepare drawing area */
-    
+    //surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 240, 240);
+    //cr = cairo_create (surface);
     /* Example is in 26.0 x 1.0 coordinate space */
     cairo_scale (cr, 240, 240);
-    cairo_set_font_size (cr, 0.25);
+    cairo_set_font_size (cr, 0.5);
     
     cairo_font_options_t *cfo;
     
@@ -324,14 +499,17 @@ trap_render (cairo_t *cr, int w, int h)
     cfo = cairo_font_options_create();
     
     /* Drawing code goes here */
-    cairo_set_source_rgb (cr, 0.1, 0.1, 0.1);
-    cairo_select_font_face (cr, "Purisa",
+    cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
+    cairo_select_font_face (cr, "Andale Mono",
                             CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
     cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_GRAY);
     cairo_font_extents (cr, &fe);
     
     cairo_device_to_user_distance (cr, &ux, &uy);
-    
+    if (ux > uy)
+        px = ux;
+    else
+        px = uy;
     cairo_font_extents (cr, &fe);
     cairo_text_extents (cr, text, &te);
     x = 0.5 - te.x_bearing - te.width / 4;
@@ -339,10 +517,8 @@ trap_render (cairo_t *cr, int w, int h)
     
     /* text */
     cairo_move_to (cr, x, y);
-    cairo_set_source_rgb (cr, 0, 1, 0);
+    cairo_set_source_rgb (cr, 0, 0, 0);
     cairo_show_text (cr, text);
-    cairo_move_to (cr, x, y+0.3);
-    cairo_show_text (cr, "Vectors");
     
     // clean up the font option
     cairo_font_options_destroy(cfo);
@@ -491,7 +667,6 @@ typedef struct {
     const char *frag_source;
 } ShaderData;
 
-
 static ShaderData shaders[NUM_SHADERS] = {
     
     /* SHADER_COLOR */
@@ -532,7 +707,52 @@ static ShaderData shaders[NUM_SHADERS] = {
         "\n"
         "void main()\n"
         "{\n"
-        "    gl_FragColor = texture2D(tex0, v_texCoord) * v_color;\n"
+        //"    gl_FragColor = texture2D(tex0, v_texCoord) * v_color;\n"
+        
+        
+        
+         "vec4 blurSample = vec4(0,0,0,0);\n"
+         "vec4 tmpPix;\n"
+         "vec4 offPix;\n"
+         "vec2 uv = v_texCoord.st;\n"
+         "vec4 base = texture2D(tex0, v_texCoord);\n"
+         
+         "for(int i=-4;i<5;i++)\n"
+         "{\n"
+         
+         "   float loopMod = float(i);\n"
+         
+         "    tmpPix = texture2D(tex0,uv + vec2( loopMod*0.005,-0.0005*loopMod ));\n"
+         "    offPix = -0.05+tmpPix;\n"
+         "    offPix = offPix * vec4(5,5,5,5);\n"
+         "    int compare = int(offPix.r+offPix.g+offPix.b);\n"
+         
+         "    if( compare>0 )\n"
+         "    {\n"
+         "            blurSample = blurSample + offPix;\n"
+         "    }\n"
+         "}\n"
+         
+         "for(int i=-4;i<5;i++)\n"
+         "{\n"
+         "    float loopMod2 = float(i);\n"
+         
+         "    tmpPix = texture2D(tex0,uv + vec2( -0.0005*loopMod2,loopMod2*0.005 ));\n"
+         "            offPix = 0.05+tmpPix;\n"
+         "    offPix = offPix * vec4(5,5,5,5);\n"
+         "    int compare2 = int(offPix.r+offPix.g+offPix.b);\n"
+         
+         "    if( compare2>0 )\n"
+         "    {\n"
+         "        blurSample += offPix;\n"
+         "    }\n"
+         
+         "}\n"
+         
+         "vec4 result = base + blurSample - (2.0 * base * blurSample);\n"
+         "result = clamp(result, 0.0, 1.0);\n"
+         "gl_FragColor = mix(base,result,0.75);\n"
+         
         
         /*
         "  vec2 onePixel = vec2(1.0 / 480.0, 1.0 / 320.0);\n"
@@ -547,7 +767,8 @@ static ShaderData shaders[NUM_SHADERS] = {
         "  color += texture2D(tex0, texCoord + onePixel) * 5.0;\n"
         
         "  color.rgb = vec3((color.r + color.g + color.b) / 3.0);\n"
-        "  gl_FragColor = mix(vec4(color.rgb, 1), texture2D(tex0, v_texCoord) * v_color, 0.45);\n"*/
+        "  gl_FragColor = mix(vec4(color.rgb, 1), texture2D(tex0, v_texCoord) * v_color, 0.45);\n"
+        */
         
         "}"
     },
@@ -746,10 +967,9 @@ power_of_two(int input)
     return value;
 }
 
-GLuint
-SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord)
+void SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint texture)
 {
-    GLuint texture;
+    
     int w, h;
     
     /* Use the surface width and height expanded to powers of 2 */
@@ -760,8 +980,6 @@ SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord)
     texcoord[2] = (GLfloat) surface->w / w;     /* Max X */
     texcoord[3] = (GLfloat) surface->h / h;     /* Max Y */
     
-    /* Create an OpenGL texture for the image */
-    glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -770,12 +988,13 @@ SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord)
     glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
     
     
-    return texture;
 }
 
 /* A general OpenGL initialization function.    Sets all of the initial parameters. */
-void InitGL(int Width, int Height)                    // We call this right after our OpenGL window is created.
+GLuint InitGL(int Width, int Height)                    // We call this right after our OpenGL window is created.
 {
+    
+    GLuint texture;
     GLdouble aspect;
     
     glViewport(0, 0, Width, Height);
@@ -792,9 +1011,14 @@ void InitGL(int Width, int Height)                    // We call this right afte
     glLoadIdentity();                // Reset The Projection Matrix
     
     aspect = (GLdouble)Width / Height;
-    glOrtho(-1.0, 1.0, -1.0 / aspect, 1.0 / aspect, -1.0, 1.0);
+    glOrtho(-1.5, 1.5, -1.5 / aspect, 1.5 / aspect, 0.0, 1.0);
     
     glMatrixMode(GL_MODELVIEW);
+    
+    /* Create an OpenGL texture for the image */
+    glGenTextures(1, &texture);
+    
+    return texture;
 }
 
 /* The main drawing function. */
@@ -813,7 +1037,7 @@ void DrawGLScene(SDL_Window *window, GLuint texture, GLfloat * texcoord)
     
     // draw a textured square (quadrilateral)
     glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    
     glColor3f(1.0f,1.0f,1.0f);
     if (shaders_supported) {
         glUseProgramObjectARB(shaders[current_shader].program);
@@ -836,52 +1060,14 @@ void DrawGLScene(SDL_Window *window, GLuint texture, GLfloat * texcoord)
     glDisable(GL_TEXTURE_2D);
     glDeleteTextures(1,&texture);
     
-    
-    
     // swap buffers to display, since we're double buffered.
     SDL_GL_SwapWindow(window);
     
     
 }
 
-
-typedef struct {
-    int *width;
-    int *height;
-    int *x;
-    int *y;
-    float *xvelocity;
-    float *yvelocity;
-} Sprite;
-
-typedef struct {
-    
-    Sprite *chain[6];
-    
-} SpriteChain;
-
-SpriteChain InitSprites ( Sprite *spritearray[6], SpriteChain *newchain )
-{
-    for( int jj = 0; jj <= 6; jj++)
-    {
-        *spritearray[jj]->height = 240;
-        *spritearray[jj]->width = 190;
-        *spritearray[jj]->x = rand() * (880 - 190);
-        *spritearray[jj]->y = rand() * (880 - 240);
-        *spritearray[jj]->xvelocity = 0.0;
-        *spritearray[jj]->yvelocity = 0.0;
-        
-        //populate the sprite data
-        *newchain->chain[jj] = *spritearray[jj];
-        
-    }
-    
-    return *newchain;
-    
-}
-
 static void
-event_loop (int width, int height)
+event_loop (unsigned flags, int width, int height)
 {
     
     SDL_Event event;
@@ -891,14 +1077,11 @@ event_loop (int width, int height)
     SDL_Surface *screen;
     GLfloat texcoords[4];
     
-    
-    window = SDL_CreateWindow("Unsafe System",
+    window = SDL_CreateWindow("Cairo Gears",
                               SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED,
                               WINDOW_WIDTH, WINDOW_HEIGHT,
-                              SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE );
-        
-    
+                              SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     
     // Create an OpenGL context associated with the window.
     SDL_GLContext glcontext = SDL_GL_CreateContext(window);
@@ -906,18 +1089,11 @@ event_loop (int width, int height)
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
     
     
-    
-    /* Loop, drawing and checking events */
-    InitGL(width, height);
+    texture = InitGL(width, height);
     
     InitShaders();
     
-    screen = SDL_CreateRGBSurface (
-                                   SDL_SWSURFACE, width, height, 32,
-                                   CAIROSDL_RMASK,
-                                   CAIROSDL_GMASK,
-                                   CAIROSDL_BMASK,
-                                   CAIROSDL_AMASK); /* Amask */
+    
     
     /* Main render loop */
     int done = 0;
@@ -940,23 +1116,29 @@ event_loop (int width, int height)
             
         }
         
-        if(current_shader == 1)
-        {
-            trap_render (cairo_create(cairosdl_surface_create(screen)), width, height);
+        screen = SDL_CreateRGBSurface (
+                                       SDL_SWSURFACE, width, height, 32,
+                                       CAIROSDL_RMASK,
+                                       CAIROSDL_GMASK,
+                                       CAIROSDL_BMASK,
+                                       CAIROSDL_AMASK); /* Amask */
         
-            texture = SDL_GL_LoadTexture(screen, texcoords);
-        }
+        
+        //cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
+        trap_render(cairo_create(cairosdl_surface_create(screen)), width, height);
+        
+        SDL_GL_LoadTexture(screen, texcoords, texture);
         
         DrawGLScene(window, texture, texcoords);
         
-        
+        SDL_FreeSurface(screen);
         
     }
     
     
     QuitShaders();
     
-    SDL_FreeSurface(screen);
+    
     
     // Once finished with OpenGL functions, the SDL_GLContext can be deleted.
     SDL_GL_DeleteContext(glcontext);
@@ -976,7 +1158,7 @@ main (int argc, char *argv[])
     
     int width = WINDOW_WIDTH;
     int height = WINDOW_HEIGHT;
-    
+    int flags = SDL_SWSURFACE;
     int init_flags = SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
     
     
@@ -987,7 +1169,7 @@ main (int argc, char *argv[])
     }
     atexit (SDL_Quit);
     
-    event_loop (width, height);
+    event_loop (flags, width, height);
     return 0;
 }
 
