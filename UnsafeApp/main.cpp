@@ -673,18 +673,22 @@ static ShaderData shaders[NUM_SHADERS] = {
     { 0, 0, 0,
         /* vertex shader */
         "varying vec4 v_color;\n"
+        "varying vec2 v_texCoord;\n"
         "\n"
         "void main()\n"
         "{\n"
         "    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
         "    v_color = gl_Color;\n"
+        "    v_texCoord = vec2(gl_MultiTexCoord0);\n"
         "}",
         /* fragment shader */
         "varying vec4 v_color;\n"
+        "varying vec2 v_texCoord;\n"
+        "uniform sampler2D tex0;\n"
         "\n"
         "void main()\n"
         "{\n"
-        "    gl_FragColor = v_color;\n"
+        "    gl_FragColor = texture2D(tex0, v_texCoord) * v_color;\n"
         "}"
     },
     
@@ -1011,7 +1015,7 @@ GLuint InitGL(int Width, int Height)                    // We call this right af
     glLoadIdentity();                // Reset The Projection Matrix
     
     aspect = (GLdouble)Width / Height;
-    glOrtho(-1.5, 1.5, -1.5 / aspect, 1.5 / aspect, 0.0, 1.0);
+    glOrtho(-1.0, 1.0, -1.0 / aspect, 1.0 / aspect, 0.0, 1.0);
     
     glMatrixMode(GL_MODELVIEW);
     
@@ -1077,7 +1081,7 @@ event_loop (unsigned flags, int width, int height)
     SDL_Surface *screen;
     GLfloat texcoords[4];
     
-    window = SDL_CreateWindow("Cairo Gears",
+    window = SDL_CreateWindow("Unsafe System",
                               SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED,
                               WINDOW_WIDTH, WINDOW_HEIGHT,
@@ -1092,7 +1096,6 @@ event_loop (unsigned flags, int width, int height)
     texture = InitGL(width, height);
     
     InitShaders();
-    
     
     
     /* Main render loop */
@@ -1116,6 +1119,8 @@ event_loop (unsigned flags, int width, int height)
             
         }
         
+        if (current_shader == 0){
+        
         screen = SDL_CreateRGBSurface (
                                        SDL_SWSURFACE, width, height, 32,
                                        CAIROSDL_RMASK,
@@ -1123,17 +1128,40 @@ event_loop (unsigned flags, int width, int height)
                                        CAIROSDL_BMASK,
                                        CAIROSDL_AMASK); /* Amask */
         
-        
-        //cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
-        trap_render(cairo_create(cairosdl_surface_create(screen)), width, height);
+        cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
+        //trap_render(cairo_create(cairosdl_surface_create(screen)), width, height);
         
         SDL_GL_LoadTexture(screen, texcoords, texture);
         
+        SDL_FreeSurface(screen);
+            
+        }
+        
+        if (current_shader == 1){
+            
+            screen = SDL_CreateRGBSurface (
+                                           SDL_SWSURFACE, width, height, 32,
+                                           CAIROSDL_RMASK,
+                                           CAIROSDL_GMASK,
+                                           CAIROSDL_BMASK,
+                                           CAIROSDL_AMASK); /* Amask */
+            
+            //cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
+            trap_render(cairo_create(cairosdl_surface_create(screen)), width, height);
+            
+            SDL_GL_LoadTexture(screen, texcoords, texture);
+            
+            SDL_FreeSurface(screen);
+            
+        }
+        
         DrawGLScene(window, texture, texcoords);
         
-        SDL_FreeSurface(screen);
+        
         
     }
+    
+    
     
     
     QuitShaders();
