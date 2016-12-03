@@ -10,7 +10,7 @@
 
 #undef min
 
-#define LINEWIDTH 3.0
+#define LINEWIDTH 1.5
 
 #define FILL_R 0.1
 #define FILL_G 0.1
@@ -425,6 +425,8 @@ trap_render (cairo_t *cr, int w, int h)
     
     stroke_and_fill_step (w, h);
     
+    cairo_save(cr); {
+    
     cairo_translate (cr, -10, -10);
     for (pass = 1; pass <= 2; pass++) {
         cairo_new_path (cr);
@@ -481,8 +483,13 @@ trap_render (cairo_t *cr, int w, int h)
     cairo_set_line_width (cr, LINEWIDTH);
     cairo_stroke (cr);
     
+    cairo_restore(cr);
+        
+    }
+    
+    /*
     double x, y, px, ux=1, uy=1, dashlength;
-    char text[]="";
+    char text[]="Cairo Testing";
     cairo_font_extents_t fe;
     cairo_text_extents_t te;
     
@@ -490,8 +497,10 @@ trap_render (cairo_t *cr, int w, int h)
     //surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 240, 240);
     //cr = cairo_create (surface);
     /* Example is in 26.0 x 1.0 coordinate space */
+    
+    /*
     cairo_scale (cr, 240, 240);
-    cairo_set_font_size (cr, 0.5);
+    cairo_set_font_size (cr, 0.15);
     
     cairo_font_options_t *cfo;
     
@@ -499,6 +508,7 @@ trap_render (cairo_t *cr, int w, int h)
     cfo = cairo_font_options_create();
     
     /* Drawing code goes here */
+    /*
     cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
     cairo_select_font_face (cr, "Andale Mono",
                             CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
@@ -516,14 +526,15 @@ trap_render (cairo_t *cr, int w, int h)
     y = 0.5 - fe.descent + fe.height / 2;
     
     /* text */
+    /*
     cairo_move_to (cr, x, y);
-    cairo_set_source_rgb (cr, 0, 0, 0);
+    cairo_set_source_rgb (cr, 1, 1, 1);
     cairo_show_text (cr, text);
     
     // clean up the font option
-    cairo_font_options_destroy(cfo);
+    cairo_font_options_destroy(cfo); */
     
-    cairosdl_destroy (cr, cairo_get_target (cr));
+    //cairosdl_destroy (cr, cairo_get_target (cr));
 }
 
 
@@ -971,7 +982,7 @@ power_of_two(int input)
     return value;
 }
 
-void SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint texture)
+void SDL_GL_InitTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint texture)
 {
     
     int w, h;
@@ -989,8 +1000,17 @@ void SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint textur
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    
     glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
     
+}
+
+void SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint texture)
+{
+    
+    
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, surface->w, surface->h, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
     
 }
 
@@ -1026,7 +1046,7 @@ GLuint InitGL(int Width, int Height)                    // We call this right af
 }
 
 /* The main drawing function. */
-void DrawGLScene(SDL_Window *window, GLuint texture, GLfloat * texcoord)
+void DrawGLScene(GLfloat * texcoord)
 {
     /* Texture coordinate lookup, to make it simple */
     enum {
@@ -1062,11 +1082,8 @@ void DrawGLScene(SDL_Window *window, GLuint texture, GLfloat * texcoord)
         glUseProgramObjectARB(0);
     }
     glDisable(GL_TEXTURE_2D);
-    glDeleteTextures(1,&texture);
     
-    // swap buffers to display, since we're double buffered.
-    SDL_GL_SwapWindow(window);
-    
+    //glDeleteTextures(1,&texture);
     
 }
 
@@ -1079,6 +1096,23 @@ event_loop (unsigned flags, int width, int height)
     SDL_Window *window;
     
     SDL_Surface *screen;
+    
+    screen = SDL_CreateRGBSurface (
+                                   SDL_SWSURFACE, width, height, 32,
+                                   CAIROSDL_RMASK,
+                                   CAIROSDL_GMASK,
+                                   CAIROSDL_BMASK,
+                                   CAIROSDL_AMASK); /* Amask */
+    
+    cairo_surface_t *cs;
+    
+    cs = cairosdl_surface_create(screen);
+    
+    cairo_t *cr;
+    
+    cr = cairo_create(cs);
+    
+    
     GLfloat texcoords[4];
     
     window = SDL_CreateWindow("Unsafe System",
@@ -1096,6 +1130,8 @@ event_loop (unsigned flags, int width, int height)
     texture = InitGL(width, height);
     
     InitShaders();
+    
+    SDL_GL_InitTexture(screen, texcoords, texture);
     
     
     /* Main render loop */
@@ -1121,42 +1157,40 @@ event_loop (unsigned flags, int width, int height)
         
         if (current_shader == 0){
         
-        screen = SDL_CreateRGBSurface (
-                                       SDL_SWSURFACE, width, height, 32,
-                                       CAIROSDL_RMASK,
-                                       CAIROSDL_GMASK,
-                                       CAIROSDL_BMASK,
-                                       CAIROSDL_AMASK); /* Amask */
         
-        cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
-        //trap_render(cairo_create(cairosdl_surface_create(screen)), width, height);
+        
+        //cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
+        trap_render(cr, width, height);
         
         SDL_GL_LoadTexture(screen, texcoords, texture);
-        
-        SDL_FreeSurface(screen);
+            
+        //SDL_FreeSurface(screen);
             
         }
         
         if (current_shader == 1){
             
+            /*
             screen = SDL_CreateRGBSurface (
                                            SDL_SWSURFACE, width, height, 32,
                                            CAIROSDL_RMASK,
                                            CAIROSDL_GMASK,
                                            CAIROSDL_BMASK,
-                                           CAIROSDL_AMASK); /* Amask */
+                                           CAIROSDL_AMASK); */
             
             //cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
-            trap_render(cairo_create(cairosdl_surface_create(screen)), width, height);
+            trap_render(cr, width, height);
             
             SDL_GL_LoadTexture(screen, texcoords, texture);
             
-            SDL_FreeSurface(screen);
+            //SDL_FreeSurface(screen);
             
         }
         
-        DrawGLScene(window, texture, texcoords);
+        DrawGLScene(texcoords);
         
+        // swap buffers to display, since we're double buffered.
+        SDL_GL_SwapWindow(window);
         
         
     }
