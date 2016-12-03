@@ -1057,7 +1057,6 @@ void DrawGLScene(GLfloat * texcoord)
     };
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);        // Clear The Screen And The Depth Buffer
-    glLoadIdentity();                // Reset The View
     
     // draw a textured square (quadrilateral)
     glEnable(GL_TEXTURE_2D);
