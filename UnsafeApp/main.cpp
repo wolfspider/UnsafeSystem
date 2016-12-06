@@ -1111,7 +1111,6 @@ event_loop (unsigned flags, int width, int height)
     
     cr = cairo_create(cs);
     
-    
     GLfloat texcoords[4];
     
     window = SDL_CreateWindow("Unsafe System",
@@ -1125,13 +1124,11 @@ event_loop (unsigned flags, int width, int height)
     
     SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
     
-    
     texture = InitGL(width, height);
     
     InitShaders();
     
     SDL_GL_InitTexture(screen, texcoords, texture);
-    
     
     /* Main render loop */
     int done = 0;
@@ -1157,53 +1154,34 @@ event_loop (unsigned flags, int width, int height)
         if (current_shader == 0){
         
         
-        
         //cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
         trap_render(cr, width, height);
-        
-        SDL_GL_LoadTexture(screen, texcoords, texture);
-            
-        //SDL_FreeSurface(screen);
             
         }
         
         if (current_shader == 1){
             
-            /*
-            screen = SDL_CreateRGBSurface (
-                                           SDL_SWSURFACE, width, height, 32,
-                                           CAIROSDL_RMASK,
-                                           CAIROSDL_GMASK,
-                                           CAIROSDL_BMASK,
-                                           CAIROSDL_AMASK); */
             
             //cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
             trap_render(cr, width, height);
             
-            SDL_GL_LoadTexture(screen, texcoords, texture);
-            
-            //SDL_FreeSurface(screen);
-            
         }
+        
+        SDL_GL_LoadTexture(screen, texcoords, texture);
         
         DrawGLScene(texcoords);
         
         // swap buffers to display, since we're double buffered.
         SDL_GL_SwapWindow(window);
         
-        
     }
     
-    
-    
-    
     QuitShaders();
-    
-    
     
     // Once finished with OpenGL functions, the SDL_GLContext can be deleted.
     SDL_GL_DeleteContext(glcontext);
     
+    SDL_FreeSurface(screen);
     //SDL_DestroyTexture(sprite);
     //SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
