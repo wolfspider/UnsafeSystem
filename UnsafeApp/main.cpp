@@ -1154,8 +1154,8 @@ event_loop (unsigned flags, int width, int height)
         if (current_shader == 0){
         
         
-        //cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
-        trap_render(cr, width, height);
+            //cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
+            trap_render(cr, width, height);
             
         }
         

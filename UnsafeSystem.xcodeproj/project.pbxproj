@@ -7,9 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3B4573691DF8EA2D00B0DAD7 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B4573681DF8EA2D00B0DAD7 /* AppKit.framework */; };
+		3B45736B1DF8EA3A00B0DAD7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B45736A1DF8EA3A00B0DAD7 /* Foundation.framework */; };
+		3B45736D1DF8EA4F00B0DAD7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B45736C1DF8EA4F00B0DAD7 /* Cocoa.framework */; };
+		3B4573741DF8F3CC00B0DAD7 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B4573731DF8F3CC00B0DAD7 /* libcairo.2.dylib */; };
+		3B4573761DF9351400B0DAD7 /* nsgl-main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B4573661DF8E91B00B0DAD7 /* nsgl-main.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		3B9D5EDF1DF2775000D6FD91 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B9D5EDE1DF2775000D6FD91 /* SDL2.framework */; };
-		3BBC0B181DF2800200F01380 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BBC0B161DF27FF800F01380 /* libcairo.2.dylib */; };
-		8DC797E01AB4FAE800A90029 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8DC797DF1AB4FAE800A90029 /* main.cpp */; };
 		8DC797E51AB4FB1C00A90029 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC797E41AB4FB1C00A90029 /* OpenGL.framework */; };
 /* End PBXBuildFile section */
 
@@ -57,9 +60,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3B4573661DF8E91B00B0DAD7 /* nsgl-main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "nsgl-main.m"; path = "../nsgl-main.m"; sourceTree = "<group>"; };
+		3B4573681DF8EA2D00B0DAD7 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		3B45736A1DF8EA3A00B0DAD7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		3B45736C1DF8EA4F00B0DAD7 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		3B4573731DF8F3CC00B0DAD7 /* libcairo.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libcairo.2.dylib; sourceTree = "<group>"; };
 		3B9D5EDE1DF2775000D6FD91 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = "../../Downloads/SDL2-2.0.1/Xcode/SDL/build/Debug/SDL2.framework"; sourceTree = "<group>"; };
 		3BBC0B071DF27DAD00F01380 /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = "../../Downloads/SDL2-2.0.1/Xcode/SDL/SDL.xcodeproj"; sourceTree = "<group>"; };
-		3BBC0B161DF27FF800F01380 /* libcairo.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libcairo.2.dylib; sourceTree = "<group>"; };
 		3BBC0B1B1DF2AAF900F01380 /* UnsafeSystem.profdata */ = {isa = PBXFileReference; lastKnownFileType = file; path = UnsafeSystem.profdata; sourceTree = "<group>"; };
 		8DC797D71AB4F9C900A90029 /* cairosdl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cairosdl.h; sourceTree = "<group>"; };
 		8DC797DC1AB4FAE800A90029 /* UnsafeApp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnsafeApp; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -72,9 +79,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B45736D1DF8EA4F00B0DAD7 /* Cocoa.framework in Frameworks */,
+				3B45736B1DF8EA3A00B0DAD7 /* Foundation.framework in Frameworks */,
+				3B4573691DF8EA2D00B0DAD7 /* AppKit.framework in Frameworks */,
 				3B9D5EDF1DF2775000D6FD91 /* SDL2.framework in Frameworks */,
 				8DC797E51AB4FB1C00A90029 /* OpenGL.framework in Frameworks */,
-				3BBC0B181DF2800200F01380 /* libcairo.2.dylib in Frameworks */,
+				3B4573741DF8F3CC00B0DAD7 /* libcairo.2.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -84,6 +94,9 @@
 		3B9D5EDD1DF2775000D6FD91 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				3B45736C1DF8EA4F00B0DAD7 /* Cocoa.framework */,
+				3B45736A1DF8EA3A00B0DAD7 /* Foundation.framework */,
+				3B4573681DF8EA2D00B0DAD7 /* AppKit.framework */,
 				3B9D5EDE1DF2775000D6FD91 /* SDL2.framework */,
 			);
 			name = Frameworks;
@@ -111,7 +124,7 @@
 		8DC797CF1AB4F91B00A90029 = {
 			isa = PBXGroup;
 			children = (
-				3BBC0B161DF27FF800F01380 /* libcairo.2.dylib */,
+				3B4573731DF8F3CC00B0DAD7 /* libcairo.2.dylib */,
 				3BBC0B071DF27DAD00F01380 /* SDL.xcodeproj */,
 				8DC797E41AB4FB1C00A90029 /* OpenGL.framework */,
 				8DC797D71AB4F9C900A90029 /* cairosdl.h */,
@@ -133,6 +146,7 @@
 		8DC797DE1AB4FAE800A90029 /* UnsafeApp */ = {
 			isa = PBXGroup;
 			children = (
+				3B4573661DF8E91B00B0DAD7 /* nsgl-main.m */,
 				8DC797DF1AB4FAE800A90029 /* main.cpp */,
 			);
 			path = UnsafeApp;
@@ -230,7 +244,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				8DC797E01AB4FAE800A90029 /* main.cpp in Sources */,
+				3B4573761DF9351400B0DAD7 /* nsgl-main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -329,18 +343,18 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					/usr/local/Cellar/cairo/1.12.16/include/cairo,
+					"/Users/jbennett/Documents/UnsafeLibs/cairo-nsgl/src",
 					"/Users/jbennett/Downloads/SDL2-2.0.1/include/",
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					/usr/local/Cellar/cairo/1.12.16/include/cairo,
+					"/Users/jbennett/Documents/UnsafeLibs/cairo-nsgl/src",
 					"/Users/jbennett/Downloads/SDL2-2.0.1/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/Cellar/cairo/1.12.16/lib,
+					/usr/local/lib,
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
@@ -378,6 +392,7 @@
 					"$(PROJECT_DIR)",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = fast;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
@@ -387,10 +402,12 @@
 				"HEADER_SEARCH_PATHS[arch=*]" = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
+					"/Users/jbennett/Documents/UnsafeLibs/cairo-nsgl/src",
+					"/Users/jbennett/Downloads/SDL2-2.0.1/include/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					/usr/local/Cellar/cairo/1.12.16/lib,
+					/usr/local/lib,
 					"$(PROJECT_DIR)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
