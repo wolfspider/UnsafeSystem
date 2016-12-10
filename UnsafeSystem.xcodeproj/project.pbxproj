@@ -7,11 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3B42B61B1DFCBD8A00F285C8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8DC797DF1AB4FAE800A90029 /* main.cpp */; };
 		3B4573691DF8EA2D00B0DAD7 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B4573681DF8EA2D00B0DAD7 /* AppKit.framework */; };
 		3B45736B1DF8EA3A00B0DAD7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B45736A1DF8EA3A00B0DAD7 /* Foundation.framework */; };
 		3B45736D1DF8EA4F00B0DAD7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B45736C1DF8EA4F00B0DAD7 /* Cocoa.framework */; };
 		3B4573741DF8F3CC00B0DAD7 /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B4573731DF8F3CC00B0DAD7 /* libcairo.2.dylib */; };
-		3B4573761DF9351400B0DAD7 /* nsgl-main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B4573661DF8E91B00B0DAD7 /* nsgl-main.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		3B9D5EDF1DF2775000D6FD91 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B9D5EDE1DF2775000D6FD91 /* SDL2.framework */; };
 		8DC797E51AB4FB1C00A90029 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC797E41AB4FB1C00A90029 /* OpenGL.framework */; };
 /* End PBXBuildFile section */
@@ -244,7 +244,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3B4573761DF9351400B0DAD7 /* nsgl-main.m in Sources */,
+				3B42B61B1DFCBD8A00F285C8 /* main.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

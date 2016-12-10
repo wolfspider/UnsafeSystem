@@ -52,8 +52,12 @@ static double animpts[NUMPTS * 2];
 static double deltas[NUMPTS * 2];
 static int fill_gradient = 1;
 
-GLuint texture;
+int idx;
+int nextIdx;
 
+GLuint pboIds[2];
+
+GLuint texture;
 
 
 int cairo_code_tape_get_width() { return 512; }
@@ -1005,12 +1009,60 @@ void SDL_GL_InitTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint textur
     
 }
 
+///////////////////////////////////////////////////////////////////////////////
+// copy an image data to texture buffer
+///////////////////////////////////////////////////////////////////////////////
+void updatePixels(GLubyte* dst, int size)
+{
+    static int color = 0;
+    
+    if(!dst)
+        return;
+    
+    int* ptr = (int*)dst;
+    
+    // copy 4 bytes at once
+    for(int i = 0; i < 512; ++i)
+    {
+        for(int j = 0; j < 512; ++j)
+        {
+            *ptr = color;
+            ++ptr;
+        }
+        color += 257;   // add an arbitary number (no meaning)
+    }
+    ++color;            // scroll down
+}
+
+
 void SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint texture)
 {
+    // "index" is used to copy pixels from a PBO to a texture object
+    // "nextIndex" is used to update pixels in the other PBO
     
+    idx = (idx + 1) % 2;
+    nextIdx = (idx + 1) % 2;
     
     glBindTexture(GL_TEXTURE_2D, texture);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pboIds[idx]);
+    
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, surface->w, surface->h, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
+    
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pboIds[nextIdx]);
+    
+    glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, 1048576, 0, GL_STREAM_DRAW_ARB);
+    
+    GLubyte* ptr = (GLubyte*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB,
+                                            GL_WRITE_ONLY_ARB);
+    
+    if(ptr)
+    {
+        // update data directly on the mapped buffer
+        updatePixels(ptr, 1048576);
+        glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB); // release the mapped buffer
+    }
+    
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
     
 }
 
