@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3B42B61B1DFCBD8A00F285C8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 8DC797DF1AB4FAE800A90029 /* main.cpp */; };
+		3B1EC0081E07386D00A6D64C /* nsgl-main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B4573661DF8E91B00B0DAD7 /* nsgl-main.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		3B4573691DF8EA2D00B0DAD7 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B4573681DF8EA2D00B0DAD7 /* AppKit.framework */; };
 		3B45736B1DF8EA3A00B0DAD7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B45736A1DF8EA3A00B0DAD7 /* Foundation.framework */; };
 		3B45736D1DF8EA4F00B0DAD7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B45736C1DF8EA4F00B0DAD7 /* Cocoa.framework */; };
@@ -244,7 +244,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3B42B61B1DFCBD8A00F285C8 /* main.cpp in Sources */,
+				3B1EC0081E07386D00A6D64C /* nsgl-main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -392,7 +392,7 @@
 					"$(PROJECT_DIR)",
 				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_OPTIMIZATION_LEVEL = fast;
+				GCC_OPTIMIZATION_LEVEL = 2;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;

@@ -61,6 +61,13 @@
             ReferencedContainer = "container:UnsafeSystem.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "CAIRO_GL_COMPOSITOR"
+            value = "msaa"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>

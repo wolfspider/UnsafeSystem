@@ -473,7 +473,7 @@ trap_render (cairo_t *cr, int w, int h)
         pattern = cairo_pattern_create_linear (x1, y1, x2, y2);
         cairo_pattern_add_color_stop_rgba (pattern, 0.0, 0.0, 0.0, 1.0, 0.75);
         cairo_pattern_add_color_stop_rgba (pattern, 1.0, 1.0, 0.0, 0.0, 1.0);
-        cairo_pattern_set_filter (pattern, CAIRO_FILTER_BILINEAR);
+        cairo_pattern_set_filter (pattern, CAIRO_FILTER_FAST);
         
         cairo_move_to (cr, 0, 0);
         cairo_set_source (cr, pattern);
@@ -1050,6 +1050,8 @@ void SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint textur
     
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pboIds[nextIdx]);
     
+    //magic number here is width * height * channels (RGBA) which is 4
+    
     glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, 1048576, 0, GL_STREAM_DRAW_ARB);
     
     GLubyte* ptr = (GLubyte*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB,
@@ -1076,12 +1078,12 @@ GLuint InitGL(int Width, int Height)                    // We call this right af
     glViewport(0, 0, Width, Height);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);        // This Will Clear The Background Color To Black
     glClearDepth(1.0);                // Enables Clearing Of The Depth Buffer
-    glDepthFunc(GL_LESS);                // The Type Of Depth Test To Do
-    glEnable(GL_DEPTH_TEST);            // Enables Depth Testing
+    //glDepthFunc(GL_LESS);                // The Type Of Depth Test To Do
+    //glEnable(GL_DEPTH_TEST);            // Enables Depth Testing
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    glEnable (GL_BLEND);
-    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glShadeModel(GL_SMOOTH);            // Enables Smooth Color Shading
+    //glEnable (GL_BLEND);
+    //glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glShadeModel(GL_SMOOTH);            // Enables Smooth Color Shading
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();                // Reset The Projection Matrix

@@ -256,7 +256,7 @@ trap_render (cairo_t *cr, int w, int h)
             pattern = cairo_pattern_create_linear (x1, y1, x2, y2);
             cairo_pattern_add_color_stop_rgba (pattern, 0.0, 0.0, 0.0, 1.0, 0.75);
             cairo_pattern_add_color_stop_rgba (pattern, 1.0, 1.0, 0.0, 0.0, 1.0);
-            cairo_pattern_set_filter (pattern, CAIRO_FILTER_BILINEAR);
+            cairo_pattern_set_filter (pattern, CAIRO_FILTER_FAST);
             
             cairo_move_to (cr, 0, 0);
             cairo_set_source (cr, pattern);
