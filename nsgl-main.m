@@ -283,6 +283,8 @@ trap_render (cairo_t *cr, int w, int h)
     cairo_t *cr;
     NSTimeInterval now;
     CVDisplayLinkRef displayLink; //display link for managing rendering thread
+    NSOpenGLContext *context;
+    cairo_device_t *device;
 }
 - (void) draw;
 
@@ -291,8 +293,10 @@ trap_render (cairo_t *cr, int w, int h)
 
 @implementation StretchView
 
+
 + (NSOpenGLPixelFormat*)defaultPixelFormat
 {
+    
     NSOpenGLPixelFormatAttribute attrs[] = {
         NSOpenGLPFADoubleBuffer,
         NSOpenGLPFADepthSize, 24,
@@ -305,6 +309,7 @@ trap_render (cairo_t *cr, int w, int h)
     };
     
     NSOpenGLPixelFormat *classPixelFormat = [[[NSOpenGLPixelFormat alloc] initWithAttributes:attrs] autorelease];
+    
     if (!classPixelFormat)
         exit (-1);
     
@@ -314,7 +319,13 @@ trap_render (cairo_t *cr, int w, int h)
 - (void)prepareOpenGL
 {
     
+    [[self openGLContext] makeCurrentContext];
+    
     GLint swapInt = 1;
+    
+    glEnable(GL_DEPTH_TEST);            // Enables Depth Testing
+    glEnable( GL_TEXTURE_2D );
+    
     [[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
     
     // Create a display link capable of being used with all active displays
@@ -326,6 +337,7 @@ trap_render (cairo_t *cr, int w, int h)
     // Set the display link for the current renderer
     CGLContextObj cglContext = [[self openGLContext] CGLContextObj];
     CGLPixelFormatObj cglPixelFormat = [[self pixelFormat] CGLPixelFormatObj];
+    
     
     NSOpenGLPixelFormatAttribute attrs[] = {
         NSOpenGLPFADoubleBuffer,
@@ -344,16 +356,20 @@ trap_render (cairo_t *cr, int w, int h)
     
     CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, cglContext, cglPixelFormat);
     
+    glShadeModel(GL_SMOOTH);
+    
     // Activate the display link
     CVDisplayLinkStart(displayLink);
     
-    NSOpenGLContext *context = [super openGLContext];
+    context = [super openGLContext];
     
-    cairo_device_t *device = cairo_nsgl_device_create (context);
+    device = cairo_nsgl_device_create (context);
     
     surface = cairo_gl_surface_create_for_view (device, self, WIDTH, HEIGHT);
     
     cr = cairo_create (surface);
+    
+    
 }
 
 // This is the renderer output callback function
@@ -365,13 +381,32 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 
 - (CVReturn)getFrameForTime:(const CVTimeStamp*)outputTime
 {
+    
+    // There is no autorelease pool when this method is called
+    // because it will be called from a background thread
+    // It's important to create one or you will leak objects
+    NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
+    
     // Add your drawing codes here
     
-    trap_render(cr, 512, 512);
+    [[self openGLContext] makeCurrentContext];
     
-    cairo_gl_surface_swapbuffers (surface);
+    // We draw on a secondary thread through the display link
+    // Add a mutex around to avoid the threads from accessing the context simultaneously
+    CGLLockContext([[self openGLContext] CGLContextObj]);
+    
+    
+    trap_render(cr, WIDTH, HEIGHT);
+    
+    //cairo_gl_surface_swapbuffers (surface);
     
     //NSLog(@"I am firing!");
+    
+    [[self openGLContext] flushBuffer];
+    
+    CGLUnlockContext([[self openGLContext] CGLContextObj]);
+    
+    [pool release];
     
     return kCVReturnSuccess;
 }
@@ -380,6 +415,14 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 {
     // Release the display link
     CVDisplayLinkRelease(displayLink);
+    
+    [NSOpenGLContext clearCurrentContext];
+    
+    [context release];
+    
+    cairo_destroy(cr);
+    
+    cairo_surface_destroy(surface);
     
     [super dealloc];
 }
@@ -400,11 +443,9 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 int main (int argc, char **argv)
 {
     NSAutoreleasePool *pool = [[NSAutoreleasePool alloc] init];
-    [NSApplication sharedApplication];
+    //[NSApplication sharedApplication];
     
-    int style = NSClosableWindowMask | NSResizableWindowMask |
-    NSTexturedBackgroundWindowMask | NSTitledWindowMask |
-    NSMiniaturizableWindowMask;
+    int style = (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
     
     NSScreen *screen = [NSScreen mainScreen];
     NSRect frame = [screen visibleFrame];
@@ -413,7 +454,7 @@ int main (int argc, char **argv)
     NSWindow *win = [[ NSWindow alloc] initWithContentRect: NSMakeRect (0, frame_height - HEIGHT, WIDTH, HEIGHT)
                                                  styleMask: style
                                                    backing: NSBackingStoreBuffered
-                                                     defer: NO];
+                                                     defer: YES];
     
     StretchView *view = [[StretchView alloc] initWithFrame: NSMakeRect (0, 0, WIDTH, HEIGHT)];
     [win setContentView: view];

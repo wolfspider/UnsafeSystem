@@ -6,7 +6,9 @@
 #include <stdint.h>
 #include <math.h>
 #include "cairosdl.h"
+#include <cairo-gl.h>
 #include <SDL_opengl.h>
+#include <SDL_syswm.h>
 
 #undef min
 
@@ -42,7 +44,7 @@
 
 /* Set to 1 if the input can have superluminant pixels.  Cairo doesn't
  * produce them. */
-#define DO_CLAMP_INPUT 0
+#define DO_CLAMP_INPUT 1
 
 #define pi 3.14159265358979323846264338327
 
@@ -68,21 +70,34 @@ void cairo_code_tape_render(cairo_t *cr) {
     cairo_pattern_t *pattern;
     cairo_matrix_t matrix;
     
+    cairo_set_fill_rule(cr, CAIRO_FILL_RULE_WINDING);
+    
+    cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 0.0);
+    cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+    cairo_rectangle (cr, 0, 0, cairo_code_tape_get_width(), cairo_code_tape_get_height());
+    cairo_fill (cr);
+    
+    
+    //cairo_translate(cr, scale, scale);
+    
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
     pattern = cairo_pattern_create_rgba(1,1,1,1);
     cairo_set_source(cr, pattern);
     cairo_pattern_destroy(pattern);
     
-    if (scale >= 3.0)
+    if (scale >= 1.05)
     {
         scale = 1.0;
     }
     
-    scale += 0.01;
+    scale += 0.001;
     
-    cairo_translate(cr, -scale * 50, -scale * 50);
-    cairo_scale (cr, scale, scale);
+    cairo_translate(cr, 1, 1);
     
+    cairo_save(cr); {
+        
+        cairo_save(cr); {
+            
     cairo_new_path(cr);
     cairo_move_to(cr, 276.128906, 335.082031);
     cairo_line_to(cr, 283.789063, 350.203125);
@@ -94,6 +109,7 @@ void cairo_code_tape_render(cairo_t *cr) {
     cairo_line_to(cr, 285.414063, 347.199219);
     cairo_line_to(cr, 279.304688, 335.082031);
     cairo_close_path(cr);
+    
     cairo_move_to(cr, 255.574219, 360.074219);
     cairo_line_to(cr, 258.335938, 360.074219);
     cairo_line_to(cr, 260.753906, 352.757813);
@@ -103,6 +119,7 @@ void cairo_code_tape_render(cairo_t *cr) {
     cairo_line_to(cr, 264.6875, 334.667969);
     cairo_line_to(cr, 264.378906, 334.667969);
     cairo_close_path(cr);
+            
     cairo_move_to(cr, 268.035156, 350.582031);
     cairo_line_to(cr, 261.304688, 350.582031);
     cairo_line_to(cr, 264.515625, 341.089844);
@@ -240,19 +257,46 @@ void cairo_code_tape_render(cairo_t *cr) {
     cairo_line_to(cr, 307.757813, 107.554688);
     cairo_line_to(cr, 201.757813, 107.554688);
     cairo_close_path(cr);
+    
     cairo_move_to(cr, 201.757813, 103.054688);
     cairo_set_tolerance(cr, 0.1);
     cairo_set_antialias(cr, CAIRO_ANTIALIAS_DEFAULT);
     cairo_set_fill_rule(cr, CAIRO_FILL_RULE_WINDING);
     cairo_fill_preserve(cr);
-    /********************/
+    cairo_close_path(cr);
     
-    cairosdl_destroy (cr, cairo_get_target (cr));
+    
+    cairo_restore(cr);
+            
+        }
+        
+        cairo_stroke(cr);
+        
+    cairo_restore(cr);
+    
+    }
+    //cairosdl_destroy (cr, cairo_get_target (cr));
     
 }
 
+void cairo_code_tape_move(cairo_t *cr) {
+    
+    
+    if (scale >= 3.0)
+    {
+        scale = 1.0;
+    }
+    
+    scale += 0.01;
+    
+    
+    cairo_translate(cr, -scale * 50, -scale * 50);
+    cairo_scale (cr, scale, scale);
 
 
+    //cairosdl_destroy (cr, cairo_get_target (cr));
+    
+}
 
 static void
 gear (cairo_t *cr,
@@ -430,113 +474,113 @@ trap_render (cairo_t *cr, int w, int h)
     stroke_and_fill_step (w, h);
     
     cairo_save(cr); {
-    
-    cairo_translate (cr, -10, -10);
-    for (pass = 1; pass <= 2; pass++) {
-        cairo_new_path (cr);
-        cairo_move_to (cr, midx, midy);
         
-        for (i = 2; i <= (NUMPTS * 2); i += 2) {
-            double x2, x1 = (midx + curx) / 2.0;
-            double y2, y1 = (midy + cury) / 2.0;
+        cairo_translate (cr, -10, -10);
+        for (pass = 1; pass <= 2; pass++) {
+            cairo_new_path (cr);
+            cairo_move_to (cr, midx, midy);
             
-            prevx = curx;
-            prevy = cury;
-            if (i < (NUMPTS * 2)) {
-                curx = ctrlpts[i + 0];
-                cury = ctrlpts[i + 1];
-            } else {
-                curx = ctrlpts[0];
-                cury = ctrlpts[1];
+            for (i = 2; i <= (NUMPTS * 2); i += 2) {
+                double x2, x1 = (midx + curx) / 2.0;
+                double y2, y1 = (midy + cury) / 2.0;
+                
+                prevx = curx;
+                prevy = cury;
+                if (i < (NUMPTS * 2)) {
+                    curx = ctrlpts[i + 0];
+                    cury = ctrlpts[i + 1];
+                } else {
+                    curx = ctrlpts[0];
+                    cury = ctrlpts[1];
+                }
+                midx = (curx + prevx) / 2.0;
+                midy = (cury + prevy) / 2.0;
+                x2 = (prevx + midx) / 2.0;
+                y2 = (prevy + midy) / 2.0;
+                cairo_curve_to (cr, x1, y1, x2, y2, midx, midy);
             }
-            midx = (curx + prevx) / 2.0;
-            midy = (cury + prevy) / 2.0;
-            x2 = (prevx + midx) / 2.0;
-            y2 = (prevy + midy) / 2.0;
-            cairo_curve_to (cr, x1, y1, x2, y2, midx, midy);
+            cairo_close_path (cr);
+            
+            if (pass == 1) {
+                cairo_set_source_rgba (cr, 0,0,0,77/255.0);
+                cairo_fill (cr);
+                cairo_translate (cr, 10, 10);
+            }
         }
-        cairo_close_path (cr);
         
-        if (pass == 1) {
-            cairo_set_source_rgba (cr, 0,0,0,77/255.0);
-            cairo_fill (cr);
-            cairo_translate (cr, 10, 10);
+        if (fill_gradient) {
+            double x1, y1, x2, y2;
+            cairo_pattern_t *pattern;
+            
+            cairo_fill_extents (cr, &x1, &y1, &x2, &y2);
+            
+            pattern = cairo_pattern_create_linear (x1, y1, x2, y2);
+            cairo_pattern_add_color_stop_rgba (pattern, 0.0, 0.0, 0.0, 1.0, 0.75);
+            cairo_pattern_add_color_stop_rgba (pattern, 1.0, 1.0, 0.0, 0.0, 1.0);
+            cairo_pattern_set_filter (pattern, CAIRO_FILTER_FAST);
+            
+            cairo_move_to (cr, 0, 0);
+            cairo_set_source (cr, pattern);
+            cairo_pattern_destroy (pattern);
+        } else {
+            cairo_set_source_rgba (cr, FILL_R, FILL_G, FILL_B, FILL_OPACITY);
         }
-    }
-    
-    if (fill_gradient) {
-        double x1, y1, x2, y2;
-        cairo_pattern_t *pattern;
         
-        cairo_fill_extents (cr, &x1, &y1, &x2, &y2);
+        cairo_fill_preserve (cr);
+        cairo_set_source_rgba (cr, STROKE_R, STROKE_G, STROKE_B, STROKE_OPACITY);
+        cairo_set_line_width (cr, LINEWIDTH);
+        cairo_stroke (cr);
         
-        pattern = cairo_pattern_create_linear (x1, y1, x2, y2);
-        cairo_pattern_add_color_stop_rgba (pattern, 0.0, 0.0, 0.0, 1.0, 0.75);
-        cairo_pattern_add_color_stop_rgba (pattern, 1.0, 1.0, 0.0, 0.0, 1.0);
-        cairo_pattern_set_filter (pattern, CAIRO_FILTER_FAST);
-        
-        cairo_move_to (cr, 0, 0);
-        cairo_set_source (cr, pattern);
-        cairo_pattern_destroy (pattern);
-    } else {
-        cairo_set_source_rgba (cr, FILL_R, FILL_G, FILL_B, FILL_OPACITY);
-    }
-    
-    cairo_fill_preserve (cr);
-    cairo_set_source_rgba (cr, STROKE_R, STROKE_G, STROKE_B, STROKE_OPACITY);
-    cairo_set_line_width (cr, LINEWIDTH);
-    cairo_stroke (cr);
-    
-    cairo_restore(cr);
+        cairo_restore(cr);
         
     }
     
     /*
-    double x, y, px, ux=1, uy=1, dashlength;
-    char text[]="Cairo Testing";
-    cairo_font_extents_t fe;
-    cairo_text_extents_t te;
-    
-    /* Prepare drawing area */
+     double x, y, px, ux=1, uy=1, dashlength;
+     char text[]="Cairo Testing";
+     cairo_font_extents_t fe;
+     cairo_text_extents_t te;
+     
+     /* Prepare drawing area */
     //surface = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, 240, 240);
     //cr = cairo_create (surface);
     /* Example is in 26.0 x 1.0 coordinate space */
     
     /*
-    cairo_scale (cr, 240, 240);
-    cairo_set_font_size (cr, 0.15);
-    
-    cairo_font_options_t *cfo;
-    
-    // alocate memory for font options
-    cfo = cairo_font_options_create();
-    
-    /* Drawing code goes here */
+     cairo_scale (cr, 240, 240);
+     cairo_set_font_size (cr, 0.15);
+     
+     cairo_font_options_t *cfo;
+     
+     // alocate memory for font options
+     cfo = cairo_font_options_create();
+     
+     /* Drawing code goes here */
     /*
-    cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
-    cairo_select_font_face (cr, "Andale Mono",
-                            CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-    cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_GRAY);
-    cairo_font_extents (cr, &fe);
-    
-    cairo_device_to_user_distance (cr, &ux, &uy);
-    if (ux > uy)
-        px = ux;
-    else
-        px = uy;
-    cairo_font_extents (cr, &fe);
-    cairo_text_extents (cr, text, &te);
-    x = 0.5 - te.x_bearing - te.width / 4;
-    y = 0.5 - fe.descent + fe.height / 2;
-    
-    /* text */
+     cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
+     cairo_select_font_face (cr, "Andale Mono",
+     CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+     cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_GRAY);
+     cairo_font_extents (cr, &fe);
+     
+     cairo_device_to_user_distance (cr, &ux, &uy);
+     if (ux > uy)
+     px = ux;
+     else
+     px = uy;
+     cairo_font_extents (cr, &fe);
+     cairo_text_extents (cr, text, &te);
+     x = 0.5 - te.x_bearing - te.width / 4;
+     y = 0.5 - fe.descent + fe.height / 2;
+     
+     /* text */
     /*
-    cairo_move_to (cr, x, y);
-    cairo_set_source_rgb (cr, 1, 1, 1);
-    cairo_show_text (cr, text);
-    
-    // clean up the font option
-    cairo_font_options_destroy(cfo); */
+     cairo_move_to (cr, x, y);
+     cairo_set_source_rgb (cr, 1, 1, 1);
+     cairo_show_text (cr, text);
+     
+     // clean up the font option
+     cairo_font_options_destroy(cfo); */
     
     //cairosdl_destroy (cr, cairo_get_target (cr));
 }
@@ -730,64 +774,64 @@ static ShaderData shaders[NUM_SHADERS] = {
         
         
         
-         "vec4 blurSample = vec4(0,0,0,0);\n"
-         "vec4 tmpPix;\n"
-         "vec4 offPix;\n"
-         "vec2 uv = v_texCoord.st;\n"
-         "vec4 base = texture2D(tex0, v_texCoord);\n"
-         
-         "for(int i=-4;i<5;i++)\n"
-         "{\n"
-         
-         "   float loopMod = float(i);\n"
-         
-         "    tmpPix = texture2D(tex0,uv + vec2( loopMod*0.005,-0.0005*loopMod ));\n"
-         "    offPix = -0.05+tmpPix;\n"
-         "    offPix = offPix * vec4(5,5,5,5);\n"
-         "    int compare = int(offPix.r+offPix.g+offPix.b);\n"
-         
-         "    if( compare>0 )\n"
-         "    {\n"
-         "            blurSample = blurSample + offPix;\n"
-         "    }\n"
-         "}\n"
-         
-         "for(int i=-4;i<5;i++)\n"
-         "{\n"
-         "    float loopMod2 = float(i);\n"
-         
-         "    tmpPix = texture2D(tex0,uv + vec2( -0.0005*loopMod2,loopMod2*0.005 ));\n"
-         "            offPix = 0.05+tmpPix;\n"
-         "    offPix = offPix * vec4(5,5,5,5);\n"
-         "    int compare2 = int(offPix.r+offPix.g+offPix.b);\n"
-         
-         "    if( compare2>0 )\n"
-         "    {\n"
-         "        blurSample += offPix;\n"
-         "    }\n"
-         
-         "}\n"
-         
-         "vec4 result = base + blurSample - (2.0 * base * blurSample);\n"
-         "result = clamp(result, 0.0, 1.0);\n"
-         "gl_FragColor = mix(base,result,0.75);\n"
-         
+        "vec4 blurSample = vec4(0,0,0,0);\n"
+        "vec4 tmpPix;\n"
+        "vec4 offPix;\n"
+        "vec2 uv = v_texCoord.st;\n"
+        "vec4 base = texture2D(tex0, v_texCoord);\n"
+        
+        "for(int i=-4;i<5;i++)\n"
+        "{\n"
+        
+        "   float loopMod = float(i);\n"
+        
+        "    tmpPix = texture2D(tex0,uv + vec2( loopMod*0.005,-0.0005*loopMod ));\n"
+        "    offPix = -0.05+tmpPix;\n"
+        "    offPix = offPix * vec4(5,5,5,5);\n"
+        "    int compare = int(offPix.r+offPix.g+offPix.b);\n"
+        
+        "    if( compare>0 )\n"
+        "    {\n"
+        "            blurSample = blurSample + offPix;\n"
+        "    }\n"
+        "}\n"
+        
+        "for(int i=-4;i<5;i++)\n"
+        "{\n"
+        "    float loopMod2 = float(i);\n"
+        
+        "    tmpPix = texture2D(tex0,uv + vec2( -0.0005*loopMod2,loopMod2*0.005 ));\n"
+        "            offPix = 0.05+tmpPix;\n"
+        "    offPix = offPix * vec4(5,5,5,5);\n"
+        "    int compare2 = int(offPix.r+offPix.g+offPix.b);\n"
+        
+        "    if( compare2>0 )\n"
+        "    {\n"
+        "        blurSample += offPix;\n"
+        "    }\n"
+        
+        "}\n"
+        
+        "vec4 result = base + blurSample - (2.0 * base * blurSample);\n"
+        "result = clamp(result, 0.0, 1.0);\n"
+        "gl_FragColor = mix(base,result,0.75);\n"
+        
         
         /*
-        "  vec2 onePixel = vec2(1.0 / 480.0, 1.0 / 320.0);\n"
-        
-        
-        "  vec2 texCoord = v_texCoord;\n"
-        
-        
-        "  vec4 color;\n"
-        "  color.rgb = vec3(0.0);\n"
-        "  color -= texture2D(tex0, texCoord - onePixel) * 5.0;\n"
-        "  color += texture2D(tex0, texCoord + onePixel) * 5.0;\n"
-        
-        "  color.rgb = vec3((color.r + color.g + color.b) / 3.0);\n"
-        "  gl_FragColor = mix(vec4(color.rgb, 1), texture2D(tex0, v_texCoord) * v_color, 0.45);\n"
-        */
+         "  vec2 onePixel = vec2(1.0 / 480.0, 1.0 / 320.0);\n"
+         
+         
+         "  vec2 texCoord = v_texCoord;\n"
+         
+         
+         "  vec4 color;\n"
+         "  color.rgb = vec3(0.0);\n"
+         "  color -= texture2D(tex0, texCoord - onePixel) * 5.0;\n"
+         "  color += texture2D(tex0, texCoord + onePixel) * 5.0;\n"
+         
+         "  color.rgb = vec3((color.r + color.g + color.b) / 3.0);\n"
+         "  gl_FragColor = mix(vec4(color.rgb, 1), texture2D(tex0, v_texCoord) * v_color, 0.45);\n"
+         */
         
         "}"
     },
@@ -1055,7 +1099,7 @@ void SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint textur
     glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, 1048576, 0, GL_STREAM_DRAW_ARB);
     
     GLubyte* ptr = (GLubyte*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB,
-                                            GL_WRITE_ONLY_ARB);
+                                         GL_WRITE_ONLY_ARB);
     
     if(ptr)
     {
@@ -1075,15 +1119,19 @@ GLuint InitGL(int Width, int Height)                    // We call this right af
     GLuint texture;
     GLdouble aspect;
     
+    /*
+    
     glViewport(0, 0, Width, Height);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);        // This Will Clear The Background Color To Black
     glClearDepth(1.0);                // Enables Clearing Of The Depth Buffer
-    //glDepthFunc(GL_LESS);                // The Type Of Depth Test To Do
+    //glDepthFunc(GL_GREATER);                // The Type Of Depth Test To Do
     //glEnable(GL_DEPTH_TEST);            // Enables Depth Testing
+    glEnable( GL_TEXTURE_2D );
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-    //glEnable (GL_BLEND);
-    //glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    //glShadeModel(GL_SMOOTH);            // Enables Smooth Color Shading
+    glEnable (GL_BLEND);
+    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glShadeModel(GL_SMOOTH);            // Enables Smooth Color Shading
+    glEnable(GL_MULTISAMPLE);
     
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();                // Reset The Projection Matrix
@@ -1094,6 +1142,7 @@ GLuint InitGL(int Width, int Height)                    // We call this right af
     glMatrixMode(GL_MODELVIEW);
     
     /* Create an OpenGL texture for the image */
+    
     glGenTextures(1, &texture);
     
     return texture;
@@ -1148,24 +1197,32 @@ event_loop (unsigned flags, int width, int height)
     
     SDL_Window *window;
     
-    SDL_Surface *screen;
+    //SDL_Surface *screen;
     
+    cairo_t *cr;
+    
+    cairo_device_t *device;
+    
+    cairo_surface_t *cs;
+    
+    //GLfloat texcoords[4];
+    
+    SDL_SysWMinfo windowInfo;
+    SDL_GetVersion(&windowInfo.version);
+    
+    SDL_InitSubSystem(SDL_INIT_VIDEO);
+    
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    
+    SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
+    
+    /*
     screen = SDL_CreateRGBSurface (
                                    SDL_SWSURFACE, width, height, 32,
                                    CAIROSDL_RMASK,
                                    CAIROSDL_GMASK,
                                    CAIROSDL_BMASK,
-                                   CAIROSDL_AMASK); /* Amask */
-    
-    cairo_surface_t *cs;
-    
-    cs = cairosdl_surface_create(screen);
-    
-    cairo_t *cr;
-    
-    cr = cairo_create(cs);
-    
-    GLfloat texcoords[4];
+                                   CAIROSDL_AMASK);*/
     
     window = SDL_CreateWindow("Unsafe System",
                               SDL_WINDOWPOS_UNDEFINED,
@@ -1173,16 +1230,32 @@ event_loop (unsigned flags, int width, int height)
                               WINDOW_WIDTH, WINDOW_HEIGHT,
                               SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
     
+    SDL_GetWindowWMInfo(window, &windowInfo);
+
     // Create an OpenGL context associated with the window.
     SDL_GLContext glcontext = SDL_GL_CreateContext(window);
     
-    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "linear");
+    //NSWindow *test = windowInfo.info.cocoa.window;
+    
+    NSView *testview = windowInfo.info.cocoa.view;
+    
+    device = cairo_nsgl_device_create(glcontext);
+    
+    //cairo_gl_device_set_thread_aware(device, true);
+    
+    //cs = cairosdl_surface_create(screen);
     
     texture = InitGL(width, height);
     
-    InitShaders();
+    //cs = cairo_gl_surface_create_for_texture(device, CAIRO_CONTENT_COLOR_ALPHA, texture, width, height);
     
-    SDL_GL_InitTexture(screen, texcoords, texture);
+    cs = cairo_gl_surface_create_for_view (device, testview, width, height);
+    
+    cr = cairo_create(cs);
+    
+    //InitShaders();
+    
+    //SDL_GL_InitTexture(screen, texcoords, texture);
     
     /* Main render loop */
     int done = 0;
@@ -1206,9 +1279,11 @@ event_loop (unsigned flags, int width, int height)
         }
         
         if (current_shader == 0){
-        
-        
+            
+            //cairo_code_tape_render(cr);
+            //cairo_code_tape_move(cr);
             //cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
+            
             trap_render(cr, width, height);
             
         }
@@ -1221,12 +1296,17 @@ event_loop (unsigned flags, int width, int height)
             
         }
         
-        SDL_GL_LoadTexture(screen, texcoords, texture);
+        //SDL_GL_LoadTexture(screen, texcoords, texture);
         
-        DrawGLScene(texcoords);
+        //DrawGLScene(texcoords);
+        
+        //cairo_gl_surface_swapbuffers (cs);
         
         // swap buffers to display, since we're double buffered.
-        SDL_GL_SwapWindow(window);
+       SDL_GL_SwapWindow(window);
+        
+        
+        
         
     }
     
@@ -1235,7 +1315,7 @@ event_loop (unsigned flags, int width, int height)
     // Once finished with OpenGL functions, the SDL_GLContext can be deleted.
     SDL_GL_DeleteContext(glcontext);
     
-    SDL_FreeSurface(screen);
+    //SDL_FreeSurface(screen);
     //SDL_DestroyTexture(sprite);
     //SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
@@ -1252,14 +1332,14 @@ main (int argc, char *argv[])
     int width = WINDOW_WIDTH;
     int height = WINDOW_HEIGHT;
     int flags = SDL_SWSURFACE;
-    int init_flags = SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
+    //int init_flags = SDL_INIT_TIMER | SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE;
     
-    
+    /*
     if (SDL_Init (init_flags) < 0) {
         fprintf (stderr, "Failed to initialise SDL: %s\n",
                  SDL_GetError ());
         exit (1);
-    }
+    }*/
     atexit (SDL_Quit);
     
     event_loop (flags, width, height);
