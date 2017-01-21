@@ -276,6 +276,17 @@ trap_render (cairo_t *cr, int w, int h)
     
 }
 
+const NSOpenGLPixelFormatAttribute attrs[] = {
+    NSOpenGLPFADoubleBuffer,
+    NSOpenGLPFADepthSize, 24,
+    NSOpenGLPFAStencilSize, 8,
+    NSOpenGLPFAAlphaSize, 8,
+    NSOpenGLPFASampleBuffers, 1,
+    NSOpenGLPFASamples, 4,
+    NSOpenGLPFAMultisample,
+    0
+};
+
 @interface StretchView : NSOpenGLView {
 @private
     NSTimer *timer;
@@ -296,17 +307,6 @@ trap_render (cairo_t *cr, int w, int h)
 
 + (NSOpenGLPixelFormat*)defaultPixelFormat
 {
-    
-    NSOpenGLPixelFormatAttribute attrs[] = {
-        NSOpenGLPFADoubleBuffer,
-        NSOpenGLPFADepthSize, 24,
-        NSOpenGLPFAStencilSize, 8,
-        NSOpenGLPFAAlphaSize, 8,
-        NSOpenGLPFASampleBuffers, 1,
-        NSOpenGLPFASamples, 4,
-        NSOpenGLPFAMultisample,
-        0
-    };
     
     NSOpenGLPixelFormat *classPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
     
@@ -334,18 +334,6 @@ trap_render (cairo_t *cr, int w, int h)
     // Set the display link for the current renderer
     CGLContextObj cglContext = self.openGLContext.CGLContextObj;
     CGLPixelFormatObj cglPixelFormat = self.pixelFormat.CGLPixelFormatObj;
-    
-    
-    NSOpenGLPixelFormatAttribute attrs[] = {
-        NSOpenGLPFADoubleBuffer,
-        NSOpenGLPFADepthSize, 24,
-        NSOpenGLPFAStencilSize, 8,
-        NSOpenGLPFAAlphaSize, 8,
-        NSOpenGLPFASampleBuffers, 1,
-        NSOpenGLPFASamples, 4,
-        NSOpenGLPFAMultisample,
-        0
-    };
     
     NSOpenGLPixelFormat *classPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
     
@@ -392,12 +380,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
         // Add a mutex around to avoid the threads from accessing the context simultaneously
         CGLLockContext(self.openGLContext.CGLContextObj);
         
-        
         trap_render(cr, WIDTH, HEIGHT);
-        
-        //cairo_gl_surface_swapbuffers (surface);
-        
-        //NSLog(@"I am firing!");
         
         [self.openGLContext flushBuffer];
         
