@@ -323,9 +323,6 @@ trap_render (cairo_t *cr, int w, int h)
     
     GLint swapInt = 1;
     
-    glEnable(GL_DEPTH_TEST);            // Enables Depth Testing
-    glEnable( GL_TEXTURE_2D );
-    
     [self.openGLContext setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
     
     // Create a display link capable of being used with all active displays
@@ -355,8 +352,6 @@ trap_render (cairo_t *cr, int w, int h)
     cglPixelFormat = (__bridge CGLPixelFormatObj)classPixelFormat;
     
     CVDisplayLinkSetCurrentCGDisplayFromOpenGLContext(displayLink, cglContext, cglPixelFormat);
-    
-    glShadeModel(GL_SMOOTH);
     
     // Activate the display link
     CVDisplayLinkStart(displayLink);
