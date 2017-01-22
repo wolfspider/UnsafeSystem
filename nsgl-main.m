@@ -7,14 +7,6 @@
 #define WIDTH 800
 #define HEIGHT 600
 
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
-
 #define LINEWIDTH 1.5
 
 #define FILL_R 0.1
