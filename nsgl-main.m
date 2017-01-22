@@ -1,12 +1,19 @@
 #import <Cocoa/Cocoa.h>
+#import <QuartzCore/QuartzCore.h>
 #import <OpenGL/gl.h>
 #import <cairo.h>
 #import <cairo-gl.h>
 
-#define WIDTH 512
-#define HEIGHT 512
+#define WIDTH 800
+#define HEIGHT 600
 
-#undef min
+#ifndef max
+#define max(a,b)            (((a) > (b)) ? (a) : (b))
+#endif
+
+#ifndef min
+#define min(a,b)            (((a) < (b)) ? (a) : (b))
+#endif
 
 #define LINEWIDTH 1.5
 
@@ -276,6 +283,186 @@ trap_render (cairo_t *cr, int w, int h)
     
 }
 
+void rand_drawing(cairo_t *cr, cairo_surface_t *surface)
+{
+    
+    int i;
+    double r, g, b, a;
+    
+    // Clear background as white
+    cairo_set_source_rgba(cr, 1, 1, 1, 1);
+    cairo_paint(cr);
+    
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    for (i = 0; i < 100; i++)
+    {
+        int shape = drand48() * 3;
+        float width = drand48() * 50 + 1;
+        
+        int line_cap = drand48() * 3;
+        cairo_line_cap_t line_cap_style = CAIRO_LINE_CAP_BUTT;
+        if (line_cap == 1)
+            line_cap_style = CAIRO_LINE_CAP_ROUND;
+        else if (line_cap == 2)
+            line_cap_style = CAIRO_LINE_CAP_SQUARE;
+        
+        int line_join = drand48() * 3;
+        cairo_line_join_t line_join_style = CAIRO_LINE_JOIN_MITER;
+        if (line_join == 1)
+            line_join_style = CAIRO_LINE_JOIN_ROUND;
+        else if (line_join == 2)
+            line_join_style = CAIRO_LINE_JOIN_BEVEL;
+        
+        double dash[] = {0.0, 0.0};
+        dash[0] = drand48() * 50;
+        dash[1] = drand48() * 50;
+        
+        cairo_set_dash(cr, dash, 2, 0);
+        cairo_set_line_width(cr, width);
+        cairo_set_line_join(cr, line_join_style);
+        cairo_set_line_cap(cr, line_cap_style);
+        
+        // Random color
+        r = drand48();
+        g = drand48();
+        b = drand48();
+        a = drand48();
+        cairo_set_source_rgba(cr, r, g, b, a);
+        
+        // Random position
+        float x = drand48() * WIDTH;
+        float y = drand48() * HEIGHT;
+        float side = drand48() * 300;
+        
+        if (shape == 0)
+        {
+            // Draw a square
+            cairo_rectangle(cr, x, y, side, side);
+            cairo_fill(cr);
+        }
+        else if (shape == 1)
+        {
+            // Draw a circle
+            cairo_arc(cr, x, y, side/2, 0.0, 2.0 * M_PI);
+            cairo_stroke(cr);
+        }
+        else
+        {
+            // Draw a triangle
+            cairo_move_to(cr, x, y);
+            cairo_line_to(cr, x + side, y);
+            cairo_line_to(cr, x, y + side);
+            cairo_close_path(cr);
+            cairo_stroke(cr);
+        }
+    }
+    cairo_surface_flush(surface);
+}
+
+static double spritewidth[6];
+static double spriteheight[6];
+static double spritex[6];
+static double spritey[6];
+static double spritexvelocity[6];
+static double spriteyvelocity[6];
+
+void initRects() {
+    
+    int i;
+    
+    for( i = 0; i < 6; i++)
+    {
+        spritewidth[i] = 190;
+        spriteheight[i] = 240;
+        spritex[i] = drand48() * (WIDTH - 190);
+        spritey[i] = drand48() * (HEIGHT - 240);
+        spritexvelocity[i] = 0.0;
+        spriteyvelocity[i] = 0.0;
+        
+    }
+    
+}
+
+void simulStep(double spritex[], double spritey[], double spritewidth[], double spriteheight[], double spriteyvelocity[], double spritexvelocity[], double deltatime)
+{
+    
+    double coeff_of_restitution = 0.75;
+    double speed_of_grav = 150.0;
+    double jumble_delay = 15 * 1000;
+    double max_velocity = 23;
+    
+    int i;
+    
+    for(i = 0; i < 6; i++)
+    {
+        
+        spritexvelocity[i] += (max_velocity / 2.0 ) - (drand48() * max_velocity);
+        spriteyvelocity[i] += (max_velocity / 2.0 ) - (drand48() * max_velocity);
+        
+        //Move sprites
+        spritex[i] = spritex[i] + (spritexvelocity[i] * deltatime);
+        spritey[i] = spritey[i] + (spriteyvelocity[i] * deltatime);
+        
+        //gravity calculation
+        spriteyvelocity[i] += speed_of_grav * deltatime;
+        
+        if( ( spritex[i] < 0 && spritexvelocity[i] < 0 ) || ( spritex[i] > ( (WIDTH + 10) - spriteheight[i] ) && spritexvelocity[i] > 0 ) )
+        {
+            spritexvelocity[i] = -spritexvelocity[i] * coeff_of_restitution;
+            spritex[i] = MAX(0, MIN(spritex[i], ( (WIDTH + 10) - spritewidth[i] )));
+            
+            if (ABS(spritexvelocity[i] < 0.01))
+                spritexvelocity[i] = 0.0;
+        }
+        
+        
+        if( ( spritey[i] < 0 && spriteyvelocity[i] < 0 ) || ( spritey[i] > ( (HEIGHT) - spriteheight[i] ) && spriteyvelocity[i] > 0 ) )
+        {
+            spriteyvelocity[i] = -spriteyvelocity[i] * coeff_of_restitution;
+            spritey[i] = MAX(0, MIN(spritey[i], ( (HEIGHT) - spriteheight[i] )));
+            
+            if (ABS(spriteyvelocity[i] > 0.01))
+                spriteyvelocity[i] = 0.0;
+        }
+        
+    }
+    
+}
+
+void drawRects(cairo_t *cr, cairo_surface_t *surface) {
+    
+    int i;
+    
+    cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
+    
+    cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 0.0);
+    cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+    cairo_rectangle (cr, 0, 0, WIDTH, HEIGHT);
+    cairo_fill (cr);
+    cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
+    
+    for(i = 0; i < 6; i++)
+    {
+        
+        if(i == 0) {
+            cairo_set_source_rgba(cr, 1, 1, 1, 1);
+        }
+        else {
+            cairo_set_source_rgba(cr, i * .15, i * .15, i * .15, .75);
+        }
+        
+        cairo_rectangle(cr, spritex[i], spritey[i], 190, 240);
+        cairo_fill(cr);
+        
+        
+        
+    }
+    
+    cairo_surface_flush(surface);
+    
+}
+
+
 const NSOpenGLPixelFormatAttribute attrs[] = {
     NSOpenGLPFADoubleBuffer,
     NSOpenGLPFADepthSize, 24,
@@ -296,6 +483,7 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
     CVDisplayLinkRef displayLink; //display link for managing rendering thread
     NSOpenGLContext *context;
     cairo_device_t *device;
+    CFTimeInterval startTime;
 }
 - (void) draw;
 
@@ -303,7 +491,6 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 
 
 @implementation StretchView
-
 
 + (NSOpenGLPixelFormat*)defaultPixelFormat
 {
@@ -354,6 +541,9 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
     
     cr = cairo_create (surface);
     
+    startTime = CACurrentMediaTime();
+    
+    initRects();
     
 }
 
@@ -380,7 +570,15 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
         // Add a mutex around to avoid the threads from accessing the context simultaneously
         CGLLockContext(self.openGLContext.CGLContextObj);
         
-        trap_render(cr, WIDTH, HEIGHT);
+        CFTimeInterval elapsedTime = CACurrentMediaTime() - startTime;
+        
+        simulStep(spritex, spritey, spritewidth, spriteheight, spritexvelocity, spriteyvelocity, (double)elapsedTime / 1000);
+        
+        drawRects(cr, surface);
+        
+        //trap_render(cr, WIDTH, HEIGHT);
+        
+        //rand_drawing(cr, surface);
         
         [self.openGLContext flushBuffer];
         
@@ -397,7 +595,6 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     CVDisplayLinkRelease(displayLink);
     
     [NSOpenGLContext clearCurrentContext];
-    
     
     cairo_destroy(cr);
     

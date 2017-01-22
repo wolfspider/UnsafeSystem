@@ -19,6 +19,7 @@
 		AB52733A1E2B562500C3CA8B /* nsgl-main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B4573661DF8E91B00B0DAD7 /* nsgl-main.m */; };
 		AB52733B1E2B56C800C3CA8B /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB5273321E2B554E00C3CA8B /* SDL2.framework */; };
 		AB52733C1E2B573000C3CA8B /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC797E41AB4FB1C00A90029 /* OpenGL.framework */; };
+		AB8D9F4C1E347BD000D37B3A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8D9F4B1E347BD000D37B3A /* QuartzCore.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -89,6 +90,7 @@
 		AB52731C1E2B414D00C3CA8B /* UnsafeAppSDL2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnsafeAppSDL2; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB52731E1E2B414E00C3CA8B /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		AB52732A1E2B554D00C3CA8B /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = "../SDL2-2.0.3/Xcode/SDL/SDL.xcodeproj"; sourceTree = "<group>"; };
+		AB8D9F4B1E347BD000D37B3A /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -96,6 +98,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB8D9F4C1E347BD000D37B3A /* QuartzCore.framework in Frameworks */,
 				3B45736D1DF8EA4F00B0DAD7 /* Cocoa.framework in Frameworks */,
 				3B45736B1DF8EA3A00B0DAD7 /* Foundation.framework in Frameworks */,
 				3B4573691DF8EA2D00B0DAD7 /* AppKit.framework in Frameworks */,
@@ -120,6 +123,7 @@
 		3B9D5EDD1DF2775000D6FD91 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AB8D9F4B1E347BD000D37B3A /* QuartzCore.framework */,
 				AB0180061E2C827F000B0D49 /* SDL2.framework */,
 				8DC797E41AB4FB1C00A90029 /* OpenGL.framework */,
 				3B45736C1DF8EA4F00B0DAD7 /* Cocoa.framework */,
