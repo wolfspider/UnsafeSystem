@@ -13,13 +13,15 @@
 		8DC797E51AB4FB1C00A90029 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC797E41AB4FB1C00A90029 /* OpenGL.framework */; };
 		AB0180041E2C8043000B0D49 /* SDL2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB5273321E2B554E00C3CA8B /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AB0180051E2C8052000B0D49 /* libcairo.2.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB5273051E2AA90D00C3CA8B /* libcairo.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
-		AB5273071E2AA9C900C3CA8B /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB5273051E2AA90D00C3CA8B /* libcairo.2.dylib */; };
 		AB52731F1E2B414E00C3CA8B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB52731E1E2B414E00C3CA8B /* main.cpp */; };
 		AB5273241E2B41B100C3CA8B /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB5273051E2AA90D00C3CA8B /* libcairo.2.dylib */; };
 		AB52733A1E2B562500C3CA8B /* nsgl-main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B4573661DF8E91B00B0DAD7 /* nsgl-main.m */; };
 		AB52733B1E2B56C800C3CA8B /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB5273321E2B554E00C3CA8B /* SDL2.framework */; };
 		AB52733C1E2B573000C3CA8B /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC797E41AB4FB1C00A90029 /* OpenGL.framework */; };
 		AB8D9F4C1E347BD000D37B3A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8D9F4B1E347BD000D37B3A /* QuartzCore.framework */; };
+		AB8D9F521E34BFE400D37B3A /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB5273051E2AA90D00C3CA8B /* libcairo.2.dylib */; };
+		AB8D9F541E34C03B00D37B3A /* librsvg-2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8D9F531E34C03B00D37B3A /* librsvg-2.dylib */; };
+		AB8D9F561E34C13A00D37B3A /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8D9F551E34C13A00D37B3A /* libglib-2.0.0.dylib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -91,6 +93,9 @@
 		AB52731E1E2B414E00C3CA8B /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
 		AB52732A1E2B554D00C3CA8B /* SDL.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = SDL.xcodeproj; path = "../SDL2-2.0.3/Xcode/SDL/SDL.xcodeproj"; sourceTree = "<group>"; };
 		AB8D9F4B1E347BD000D37B3A /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		AB8D9F531E34C03B00D37B3A /* librsvg-2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "librsvg-2.dylib"; sourceTree = "<group>"; };
+		AB8D9F551E34C13A00D37B3A /* libglib-2.0.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = "libglib-2.0.0.dylib"; sourceTree = "<group>"; };
+		AB8D9F571E34C4CA00D37B3A /* jessetext.svg */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = jessetext.svg; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -103,7 +108,9 @@
 				3B45736B1DF8EA3A00B0DAD7 /* Foundation.framework in Frameworks */,
 				3B4573691DF8EA2D00B0DAD7 /* AppKit.framework in Frameworks */,
 				8DC797E51AB4FB1C00A90029 /* OpenGL.framework in Frameworks */,
-				AB5273071E2AA9C900C3CA8B /* libcairo.2.dylib in Frameworks */,
+				AB8D9F561E34C13A00D37B3A /* libglib-2.0.0.dylib in Frameworks */,
+				AB8D9F521E34BFE400D37B3A /* libcairo.2.dylib in Frameworks */,
+				AB8D9F541E34C03B00D37B3A /* librsvg-2.dylib in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -145,6 +152,9 @@
 			isa = PBXGroup;
 			children = (
 				AB5273051E2AA90D00C3CA8B /* libcairo.2.dylib */,
+				AB8D9F531E34C03B00D37B3A /* librsvg-2.dylib */,
+				AB8D9F551E34C13A00D37B3A /* libglib-2.0.0.dylib */,
+				AB8D9F571E34C4CA00D37B3A /* jessetext.svg */,
 				AB52732A1E2B554D00C3CA8B /* SDL.xcodeproj */,
 				8DC797D71AB4F9C900A90029 /* cairosdl.h */,
 				8DC797DE1AB4FAE800A90029 /* UnsafeApp */,
@@ -414,12 +424,20 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"/Users/jessebennett/Documents/UnsafeLibs/cairo-nsgl/src",
 					"/Users/jessebennett/Documents/SDL2-2.0.3/include/",
+					"/usr/local/include/librsvg-2.0/",
+					"/usr/local/include/glib-2.0/",
+					"/usr/local/lib/glib-2.0/include/",
+					"/usr/local/include/gdk-pixbuf-2.0/",
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"/Users/jbennett/Documents/UnsafeLibs/cairo-nsgl/src",
 					"/Users/jbennett/Downloads/SDL2-2.0.1/include/",
+					"/usr/local/include/librsvg-2.0/",
+					"/usr/local/include/glib-2.0/",
+					"/usr/local/lib/glib-2.0/include/",
+					"/usr/local/include/gdk-pixbuf-2.0/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -473,6 +491,10 @@
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
 					"/Users/jessebennett/Documents/UnsafeLibs/cairo-nsgl/src",
 					"/Users/jessebennett/Documents/SDL2-2.0.5/include/",
+					"/usr/local/include/librsvg-2.0/",
+					"/usr/local/include/glib-2.0/",
+					"/usr/local/lib/glib-2.0/include/",
+					"/usr/local/include/gdk-pixbuf-2.0/",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

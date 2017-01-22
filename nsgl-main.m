@@ -3,6 +3,8 @@
 #import <OpenGL/gl.h>
 #import <cairo.h>
 #import <cairo-gl.h>
+#import <glib.h>
+#import <librsvg/rsvg.h>
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -378,7 +380,7 @@ void initRects() {
 void simulStep(double spritex[], double spritey[], double spritewidth[], double spriteheight[], double spriteyvelocity[], double spritexvelocity[], double deltatime)
 {
     
-    double coeff_of_restitution = 0.75;
+    double coeff_of_restitution = 0.55;
     double speed_of_grav = 150.0;
     double jumble_delay = 15 * 1000;
     double max_velocity = 23;
@@ -403,7 +405,7 @@ void simulStep(double spritex[], double spritey[], double spritewidth[], double 
             spritexvelocity[i] = -spritexvelocity[i] * coeff_of_restitution;
             spritex[i] = MAX(0, MIN(spritex[i], ( (WIDTH + 10) - spritewidth[i] )));
             
-            if (ABS(spritexvelocity[i] < 0.01))
+            if (ABS(spritexvelocity[i]) < 0.01)
                 spritexvelocity[i] = 0.0;
         }
         
@@ -413,7 +415,7 @@ void simulStep(double spritex[], double spritey[], double spritewidth[], double 
             spriteyvelocity[i] = -spriteyvelocity[i] * coeff_of_restitution;
             spritey[i] = MAX(0, MIN(spritey[i], ( (HEIGHT) - spriteheight[i] )));
             
-            if (ABS(spriteyvelocity[i] > 0.01))
+            if (ABS(spriteyvelocity[i]) > 0.01)
                 spriteyvelocity[i] = 0.0;
         }
         
@@ -446,9 +448,23 @@ void drawRects(cairo_t *cr, cairo_surface_t *surface) {
         cairo_rectangle(cr, spritex[i], spritey[i], 190, 240);
         cairo_fill(cr);
         
-        
-        
     }
+    
+    cairo_surface_flush(surface);
+    
+}
+
+void drawSVG(cairo_t* cr, RsvgHandle* svg, cairo_surface_t *surface) {
+    
+    // Clear background as white
+    cairo_set_source_rgba(cr, 1, 1, 1, 1);
+    cairo_paint(cr);
+    
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    
+    cairo_save(cr);
+    rsvg_handle_render_cairo(svg, cr);
+    cairo_restore(cr);
     
     cairo_surface_flush(surface);
     
@@ -476,6 +492,8 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
     NSOpenGLContext *context;
     cairo_device_t *device;
     CFTimeInterval startTime;
+    RsvgHandle*  svg;
+    RsvgDimensionData dims;
 }
 - (void) draw;
 
@@ -537,6 +555,9 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
     
     initRects();
     
+    svg = rsvg_handle_new_from_file ("/Users/jessebennett/Documents/jessetext.svg", NULL);
+    rsvg_handle_get_dimensions (svg, &dims);
+    
 }
 
 // This is the renderer output callback function
@@ -564,9 +585,11 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
         
         CFTimeInterval elapsedTime = CACurrentMediaTime() - startTime;
         
-        simulStep(spritex, spritey, spritewidth, spriteheight, spritexvelocity, spriteyvelocity, (double)elapsedTime / 1000);
+        drawSVG(cr, svg, surface);
         
-        drawRects(cr, surface);
+        //simulStep(spritex, spritey, spritewidth, spriteheight, spritexvelocity, spriteyvelocity, (double)elapsedTime / 1000);
+        
+        //drawRects(cr, surface);
         
         //trap_render(cr, WIDTH, HEIGHT);
         
