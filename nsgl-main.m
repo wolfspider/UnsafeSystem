@@ -470,6 +470,26 @@ void drawSVG(cairo_t* cr, RsvgHandle* svg, cairo_surface_t *surface) {
     
 }
 
+void drawPNG(cairo_t* cr, cairo_surface_t *surface) {
+    
+    // Clear background as white
+    cairo_set_source_rgba(cr, 1, 1, 1, 1);
+    cairo_paint(cr);
+    
+    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    
+    cairo_surface_t *image = cairo_image_surface_create_from_png("/Users/jessebennett/Documents/monster.png");
+    
+    cairo_set_source_surface(cr, image, 0, 0);
+    cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
+    cairo_paint(cr);
+    
+    cairo_surface_destroy(image);
+    
+    cairo_surface_flush(surface);
+    
+}
+
 
 const NSOpenGLPixelFormatAttribute attrs[] = {
     NSOpenGLPFADoubleBuffer,
@@ -585,7 +605,9 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
         
         CFTimeInterval elapsedTime = CACurrentMediaTime() - startTime;
         
-        drawSVG(cr, svg, surface);
+        drawPNG(cr, surface);
+        
+        //drawSVG(cr, svg, surface);
         
         //simulStep(spritex, spritey, spritewidth, spriteheight, spritexvelocity, spriteyvelocity, (double)elapsedTime / 1000);
         
