@@ -13,6 +13,9 @@
 		8DC797E51AB4FB1C00A90029 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC797E41AB4FB1C00A90029 /* OpenGL.framework */; };
 		AB0180041E2C8043000B0D49 /* SDL2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB5273321E2B554E00C3CA8B /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AB0180051E2C8052000B0D49 /* libcairo.2.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB5273051E2AA90D00C3CA8B /* libcairo.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
+		AB31F8231E3EB876006FDC31 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB0180061E2C827F000B0D49 /* SDL2.framework */; };
+		AB31F82B1E516705006FDC31 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB31F82A1E516705006FDC31 /* SDL2_image.framework */; };
+		AB31F82C1E516705006FDC31 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB31F82A1E516705006FDC31 /* SDL2_image.framework */; };
 		AB52731F1E2B414E00C3CA8B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB52731E1E2B414E00C3CA8B /* main.cpp */; };
 		AB5273241E2B41B100C3CA8B /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB5273051E2AA90D00C3CA8B /* libcairo.2.dylib */; };
 		AB52733A1E2B562500C3CA8B /* nsgl-main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B4573661DF8E91B00B0DAD7 /* nsgl-main.m */; };
@@ -88,6 +91,7 @@
 		8DC797DC1AB4FAE800A90029 /* UnsafeApp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnsafeApp; sourceTree = BUILT_PRODUCTS_DIR; };
 		8DC797E41AB4FB1C00A90029 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		AB0180061E2C827F000B0D49 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SDL2.framework; sourceTree = "<group>"; };
+		AB31F82A1E516705006FDC31 /* SDL2_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = SDL2_image.framework; sourceTree = "<group>"; };
 		AB5273051E2AA90D00C3CA8B /* libcairo.2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; path = libcairo.2.dylib; sourceTree = "<group>"; };
 		AB52731C1E2B414D00C3CA8B /* UnsafeAppSDL2 */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnsafeAppSDL2; sourceTree = BUILT_PRODUCTS_DIR; };
 		AB52731E1E2B414E00C3CA8B /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
@@ -108,6 +112,8 @@
 				3B45736B1DF8EA3A00B0DAD7 /* Foundation.framework in Frameworks */,
 				3B4573691DF8EA2D00B0DAD7 /* AppKit.framework in Frameworks */,
 				8DC797E51AB4FB1C00A90029 /* OpenGL.framework in Frameworks */,
+				AB31F8231E3EB876006FDC31 /* SDL2.framework in Frameworks */,
+				AB31F82B1E516705006FDC31 /* SDL2_image.framework in Frameworks */,
 				AB8D9F561E34C13A00D37B3A /* libglib-2.0.0.dylib in Frameworks */,
 				AB8D9F521E34BFE400D37B3A /* libcairo.2.dylib in Frameworks */,
 				AB8D9F541E34C03B00D37B3A /* librsvg-2.dylib in Frameworks */,
@@ -121,6 +127,7 @@
 				AB52733C1E2B573000C3CA8B /* OpenGL.framework in Frameworks */,
 				AB52733B1E2B56C800C3CA8B /* SDL2.framework in Frameworks */,
 				AB5273241E2B41B100C3CA8B /* libcairo.2.dylib in Frameworks */,
+				AB31F82C1E516705006FDC31 /* SDL2_image.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -130,6 +137,7 @@
 		3B9D5EDD1DF2775000D6FD91 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				AB31F82A1E516705006FDC31 /* SDL2_image.framework */,
 				AB8D9F4B1E347BD000D37B3A /* QuartzCore.framework */,
 				AB0180061E2C827F000B0D49 /* SDL2.framework */,
 				8DC797E41AB4FB1C00A90029 /* OpenGL.framework */,
@@ -428,6 +436,7 @@
 					"/usr/local/include/glib-2.0/",
 					"/usr/local/lib/glib-2.0/include/",
 					"/usr/local/include/gdk-pixbuf-2.0/",
+					/Library/Frameworks/SDL2_image.framework/Headers,
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = (
 					"$(inherited)",
@@ -438,6 +447,7 @@
 					"/usr/local/include/glib-2.0/",
 					"/usr/local/lib/glib-2.0/include/",
 					"/usr/local/include/gdk-pixbuf-2.0/",
+					/Library/Frameworks/SDL2_image.framework/Headers,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -495,6 +505,7 @@
 					"/usr/local/include/glib-2.0/",
 					"/usr/local/lib/glib-2.0/include/",
 					"/usr/local/include/gdk-pixbuf-2.0/",
+					/Library/Frameworks/SDL2_image.framework/Headers,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",

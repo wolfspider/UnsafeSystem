@@ -1189,6 +1189,8 @@ void DrawGLScene(GLfloat * texcoord)
     
 }
 
+
+
 static void
 event_loop (unsigned flags, int width, int height)
 {

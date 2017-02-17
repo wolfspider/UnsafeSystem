@@ -5,6 +5,9 @@
 #import <cairo-gl.h>
 #import <glib.h>
 #import <librsvg/rsvg.h>
+#import <SDL.h>
+#import <SDL_Image.h>
+
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -32,11 +35,33 @@
 
 #define pi 3.14159265358979323846264338327
 
+/* Cairo pixel configuration.  This isn't tweakable, it just is. */
+#define CAIROSDL_ASHIFT 24
+#define CAIROSDL_RSHIFT 16
+#define CAIROSDL_GSHIFT  8
+#define CAIROSDL_BSHIFT  0
+#define CAIROSDL_AMASK (255U << CAIROSDL_ASHIFT)
+#define CAIROSDL_RMASK (255U << CAIROSDL_RSHIFT)
+#define CAIROSDL_GMASK (255U << CAIROSDL_GSHIFT)
+#define CAIROSDL_BMASK (255U << CAIROSDL_BSHIFT)
+
 double scale = 1.0;
 
 static double animpts[NUMPTS * 2];
 static double deltas[NUMPTS * 2];
 static int fill_gradient = 1;
+
+static cairo_user_data_key_t const CAIROSDL_TARGET_KEY[1] = {{1}};
+
+
+static void
+sdl_surface_destroy_func (void *param)
+{
+	SDL_Surface *sdl_surface = (SDL_Surface *)param;
+	if (sdl_surface != NULL)
+		SDL_FreeSurface (sdl_surface);
+}
+
 
 static void
 gear (cairo_t *cr,
@@ -134,7 +159,7 @@ trap_render (cairo_t *cr, int w, int h)
     
     cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
     
-    cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 0.0);
+    cairo_set_source_rgba (cr, 0, 0, 0, 0);
     cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
     cairo_rectangle (cr, 0, 0, w, h);
     cairo_fill (cr);
@@ -284,8 +309,8 @@ void rand_drawing(cairo_t *cr, cairo_surface_t *surface)
     double r, g, b, a;
     
     // Clear background as white
-    cairo_set_source_rgba(cr, 1, 1, 1, 1);
-    cairo_paint(cr);
+    //cairo_set_source_rgba(cr, 1, 1, 1, 1);
+    //cairo_paint(cr);
     
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
     for (i = 0; i < 100; i++)
@@ -380,10 +405,10 @@ void initRects() {
 void simulStep(double spritex[], double spritey[], double spritewidth[], double spriteheight[], double spriteyvelocity[], double spritexvelocity[], double deltatime)
 {
     
-    double coeff_of_restitution = 0.55;
-    double speed_of_grav = 150.0;
+    double coeff_of_restitution = 0.50;
+    double speed_of_grav = 50.0;
     double jumble_delay = 15 * 1000;
-    double max_velocity = 23;
+    double max_velocity = 25;
     
     int i;
     
@@ -429,10 +454,10 @@ void drawRects(cairo_t *cr, cairo_surface_t *surface) {
     
     cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
     
-    cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 0.0);
-    cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-    cairo_rectangle (cr, 0, 0, WIDTH, HEIGHT);
-    cairo_fill (cr);
+    //cairo_set_source_rgba (cr, 0.0, 0.0, 0.0, 0.0);
+    //cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+    //cairo_rectangle (cr, 0, 0, WIDTH, HEIGHT);
+    //cairo_fill (cr);
     cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
     
     for(i = 0; i < 6; i++)
@@ -454,39 +479,170 @@ void drawRects(cairo_t *cr, cairo_surface_t *surface) {
     
 }
 
-void drawSVG(cairo_t* cr, RsvgHandle* svg, cairo_surface_t *surface) {
+void drawSVG(cairo_t* cr, RsvgHandle* svg, RsvgDimensionData dims, cairo_surface_t *surface) {
+    
+    int i;
     
     // Clear background as white
-    cairo_set_source_rgba(cr, 1, 1, 1, 1);
-    cairo_paint(cr);
+    //cairo_set_source_rgba(cr, 1, 1, 1, 1);
+    //cairo_paint(cr);
     
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
     
-    cairo_save(cr);
+    //cairo_save(cr);
+    
+    if (scale > 2.5)
+    {
+        scale = 1.0;
+    }
+    
+    scale += 0.025;
+    
+    cairo_save(cr); {
+    
+    cairo_matrix_t matrix;
+        
+    cairo_matrix_init(&matrix, 1, 0, 0, 1, WIDTH / 2.0, HEIGHT / 2.0);
+        
+    cairo_matrix_translate(&matrix, -dims.width / 2.0, -dims.height / 2.0);
+    
+    cairo_transform(cr, &matrix);
+    
+    cairo_translate(cr, -scale * 10, -scale * 10);
+        
+    cairo_scale(cr, scale, scale);
+    
+    //cairo_rotate(cr, scale);
+        
     rsvg_handle_render_cairo(svg, cr);
+    
     cairo_restore(cr);
+    }
     
     cairo_surface_flush(surface);
     
 }
 
-void drawPNG(cairo_t* cr, cairo_surface_t *surface) {
+cairo_surface_t *
+cairosdl_surface_create (
+						 SDL_Surface *sdl_surface)
+{
+	cairo_surface_t *target;
+	cairo_format_t format;
+	
+	
+	/* Cairo only supports a limited number of pixels formats.  Make
+	 * sure the surface format is compatible. */
+	if (sdl_surface->format->BytesPerPixel != 4 ||
+		sdl_surface->format->BitsPerPixel != 32)
+		goto unsupported_format;
+	
+	if (sdl_surface->format->Rmask != CAIROSDL_RMASK ||
+		sdl_surface->format->Gmask != CAIROSDL_GMASK ||
+		sdl_surface->format->Bmask != CAIROSDL_BMASK)
+		goto unsupported_format;
+	
+	switch (sdl_surface->format->Amask) {
+		case CAIROSDL_AMASK:
+			format = CAIRO_FORMAT_RGB24;
+			break;
+		case 0:
+			format = CAIRO_FORMAT_RGB24;
+			break;
+		default:
+			goto unsupported_format;
+	}
+	
+	
+	
+	/* Make the target point to either the SDL_Surface's data itself
+	 * or a shadow image surface if we need to unpremultiply pixels. */
+	if (format == CAIRO_FORMAT_RGB24) {
+		/* The caller is expected to have locked the surface (_if_ it
+		 * needs locking) so that sdl_surface->pixels is valid and
+		 * constant for the lifetime of the cairo_surface_t.  However,
+		 * we're told not to call any OS functions when a surface is
+		 * locked, so we really shouldn't call
+		 * cairo_image_surface_create () as it will malloc, so really
+		 * if the surface needs locking this shouldn't be used.
+		 *
+		 * However, it turns out malloc is actually safe on many (all?)
+		 * platforms so we'll just go ahead anyway. */
+		
+		
+		unsigned char *data = (unsigned char*)(sdl_surface->pixels);
+		
+		target = cairo_image_surface_create_for_data (data,
+													  CAIRO_FORMAT_ARGB32,
+													  sdl_surface->w,
+													  sdl_surface->h,
+													  sdl_surface->pitch);
+		
+		
+		
+	}
+	else {
+		/* Need a shadow image surface. */
+		
+		target = cairo_image_surface_create (CAIRO_FORMAT_ARGB32,
+											 sdl_surface->w,
+											 sdl_surface->h);
+		
+	}
+	
+	if (cairo_surface_status (target) == CAIRO_STATUS_SUCCESS) {
+		sdl_surface->refcount++;
+		
+		cairo_surface_set_user_data (target,
+									 CAIROSDL_TARGET_KEY,
+									 sdl_surface,
+									 sdl_surface_destroy_func);
+		
+		
+		
+		
+	}
+	
+	return target;
+	
+unsupported_format:
+	/* Nasty kludge to get a cairo surface in CAIRO_INVALID_FORMAT
+	 * state. */
+	return cairo_image_surface_create (
+									   (cairo_format_t)-1, 0, 0);
+}
+
+
+void drawPNG(cairo_t* cr, cairo_surface_t *image) {
     
-    // Clear background as white
-    cairo_set_source_rgba(cr, 1, 1, 1, 1);
-    cairo_paint(cr);
-    
+	int i;
+	
     cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-    
-    cairo_surface_t *image = cairo_image_surface_create_from_png("/Users/jessebennett/Documents/monster.png");
-    
-    cairo_set_source_surface(cr, image, 0, 0);
-    cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
-    cairo_paint(cr);
-    
-    cairo_surface_destroy(image);
-    
-    cairo_surface_flush(surface);
+	
+	if (scale > 10)
+	{
+		scale = 1;
+	}
+	
+	
+	for(i = 0; i < 6; i++)
+    {
+
+		cairo_save(cr); {
+		cairo_translate(cr, ((-190 * scale) + (190)) + spritex[i]/2.0, spritey[i]/2.0);
+		cairo_rectangle(cr, ((190 * scale) - (190)) + spritex[i]/2.0, spritey[i]/2.0, 190, 240);
+		cairo_clip(cr);
+		cairo_new_path(cr);
+		cairo_set_source_surface(cr, image, spritex[i]/2.0, spritey[i]/2.0);
+		cairo_paint(cr);
+		cairo_restore(cr);
+		}
+		
+	}
+
+	scale += 1;
+	
+    cairo_surface_flush(image);
     
 }
 
@@ -506,6 +662,7 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 @private
     NSTimer *timer;
     cairo_surface_t *surface;
+    SDL_Surface *imagesurface;
     cairo_t *cr;
     NSTimeInterval now;
     CVDisplayLinkRef displayLink; //display link for managing rendering thread
@@ -540,6 +697,7 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
     
     GLint swapInt = 1;
     
+    
     [self.openGLContext setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
     
     // Create a display link capable of being used with all active displays
@@ -571,10 +729,21 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
     
     cr = cairo_create (surface);
     
+    while (cairo_status(cr) != 0)
+    {
+        cr = cairo_create (surface);
+    }
+    
+    //imagesurface = cairo_image_surface_create_from_png("/Users/jessebennett/Documents/monster.png");
+    
     startTime = CACurrentMediaTime();
-    
+	
+	imagesurface = IMG_Load("/Users/jessebennett/Documents/monster.png");
+	
+	surface = cairosdl_surface_create(imagesurface);
+	
     initRects();
-    
+	
     svg = rsvg_handle_new_from_file ("/Users/jessebennett/Documents/jessetext.svg", NULL);
     rsvg_handle_get_dimensions (svg, &dims);
     
@@ -604,12 +773,16 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
         CGLLockContext(self.openGLContext.CGLContextObj);
         
         CFTimeInterval elapsedTime = CACurrentMediaTime() - startTime;
+		
+        //drawSVG(cr, svg, dims, surface);
+		
+		trap_render(cr, WIDTH, HEIGHT);
         
-        drawPNG(cr, surface);
+        simulStep(spritex, spritey, spritewidth, spriteheight, spritexvelocity, spriteyvelocity, (double)elapsedTime / 1000);
+		
+		drawPNG(cr, surface);
         
-        //drawSVG(cr, svg, surface);
-        
-        //simulStep(spritex, spritey, spritewidth, spriteheight, spritexvelocity, spriteyvelocity, (double)elapsedTime / 1000);
+        //drawSVG(cr, svg, dims, surface);
         
         //drawRects(cr, surface);
         
@@ -655,14 +828,15 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 int main (int argc, char **argv)
 {
     @autoreleasepool {
-    //[NSApplication sharedApplication];
+		
+		[NSApplication sharedApplication].presentationOptions = (NSApplicationPresentationOptions)NSFullScreenWindowMask;
     
         int style = (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
         
         NSScreen *screen = [NSScreen mainScreen];
         NSRect frame = screen.visibleFrame;
         int frame_height = frame.size.height;
-        
+		
         NSWindow *win = [[ NSWindow alloc] initWithContentRect: NSMakeRect (0, frame_height - HEIGHT, WIDTH, HEIGHT)
                                                      styleMask: style
                                                        backing: NSBackingStoreBuffered
@@ -670,6 +844,7 @@ int main (int argc, char **argv)
         
         StretchView *view = [[StretchView alloc] initWithFrame: NSMakeRect (0, 0, WIDTH, HEIGHT)];
         win.contentView = view;
+		win.collectionBehavior = NSWindowCollectionBehaviorFullScreenPrimary;
         [win makeKeyAndOrderFront: win];
         [NSApp run];
         
