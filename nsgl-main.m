@@ -6,7 +6,7 @@
 #import <glib.h>
 #import <librsvg/rsvg.h>
 #import <SDL.h>
-#import <SDL_Image.h>
+#import <SDL_image.h>
 
 
 #define WIDTH 800
@@ -144,7 +144,7 @@ static double gear2_rotation = 0.33;
 static double gear3_rotation = 0.50;
 
 void
-trap_render (cairo_t *cr, int w, int h)
+trap_render (cairo_t *cr, cairo_surface_t *surface, int w, int h)
 {
 	double *ctrlpts = animpts;
 	int len = (NUMPTS * 2);
@@ -159,7 +159,7 @@ trap_render (cairo_t *cr, int w, int h)
 	
 	cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
 	
-	cairo_set_source_rgba (cr, 0, 0, 0, 0);
+	cairo_set_source_rgba (cr, 1, 1, 1, 1);
 	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
 	cairo_rectangle (cr, 0, 0, w, h);
 	cairo_fill (cr);
@@ -297,8 +297,10 @@ trap_render (cairo_t *cr, int w, int h)
 		cairo_stroke (cr);
 		
 		cairo_restore(cr);
-		
+	
 	}
+	
+	cairo_surface_flush(surface);
 	
 }
 
@@ -479,24 +481,103 @@ void drawRects(cairo_t *cr, cairo_surface_t *surface) {
 	
 }
 
+void clearBackground(cairo_t* cr, cairo_surface_t *surface) {
+	
+	cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
+	
+	cairo_set_source_rgba (cr, 1, 1, 1, 1);
+	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+	cairo_rectangle (cr, 0, 0, WIDTH, HEIGHT);
+	cairo_fill (cr);
+	
+	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
+	cairo_set_source_rgba (cr, 0.75, 0.75, 0.75, 1.0);
+	cairo_set_line_width (cr, 1.0);
+	
+	cairo_surface_flush(surface);
+	
+}
+
+void
+crazyLine( cairo_t* ctx, double fromX, double fromY, double toX, double toY)
+{
+	// Crazyline. By Steve Hanov, 2008
+	// Released to the public domain.
+	
+	// The idea is to draw a curve, setting two control points at random
+	// close to each side of the line. The longer the line, the sloppier it's drawn.
+	
+	
+	// calculate the length of the line.
+	double length = sqrt( (toX-fromX)*(toX-fromX) + (toY-fromY)*(toY-fromY));
+	
+	// This offset determines how sloppy the line is drawn. It depends on the
+	// length, but maxes out at 20.
+	double offset = length/20;
+	if ( offset > 20 )
+		{ offset = 20; };
+	
+	// Overshoot the destination a little, as one might if drawing with a pen.
+	toX += ((double)rand()/RAND_MAX)*offset/4;
+	toY += ((double)rand()/RAND_MAX)*offset/4;
+	
+	double t1X = fromX, t1Y = fromY;
+	double t2X = toX, t2Y = toY;
+	
+	// t1 and t2 are coordinates of a line shifted under or to the right of
+	// our original.
+	t1X += offset;
+	t2X += offset;
+	t1Y += offset;
+	t2Y += offset;
+	
+	// create a control point at random along our shifted line.
+	double r = (double)rand()/RAND_MAX;
+	
+	double control1X = t1Y + r * (t2X-t1X);
+	double control1Y = t1Y + r * (t2Y-t1Y);
+	
+	// now make t1 and t2 the coordinates of our line shifted above
+	// and to the left of the original.
+	
+	t1X = fromX - offset;
+	t2X = toX - offset;
+	t1Y = fromY - offset;
+	t2Y = toY - offset;
+	
+	// create a second control point at random along the shifted line.
+	r = (double)rand()/RAND_MAX;
+	double control2X = t1X + r * (t2X-t1X);
+	double control2Y = t1Y + r * (t2Y-t1Y);
+	
+	// draw the line!
+	cairo_move_to( ctx, fromX, fromY );
+	cairo_curve_to( ctx, control1X, control1Y, control2X, control2Y, toX, toY );
+}
+
 void drawSVG(cairo_t* cr, RsvgHandle* svg, RsvgDimensionData dims, cairo_surface_t *surface) {
 	
-	int i;
+	//int i;
+	
+	cairo_pattern_t *pattern1;
 	
 	// Clear background as white
-	//cairo_set_source_rgba(cr, 1, 1, 1, 1);
-	//cairo_paint(cr);
+	cairo_set_source_rgba(cr, 1, 1, 1, 1);
+	cairo_paint(cr);
 	
 	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 	
+	pattern1 = cairo_pattern_create_for_surface(surface);
+	
 	//cairo_save(cr);
+	
 	
 	if (scale > 2.5)
 		{
 		scale = 1.0;
 		}
 	
-	scale += 0.025;
+	scale += 0.005;
 	
 	cairo_save(cr); {
 		
@@ -508,16 +589,41 @@ void drawSVG(cairo_t* cr, RsvgHandle* svg, RsvgDimensionData dims, cairo_surface
 		
 		cairo_transform(cr, &matrix);
 		
-		cairo_translate(cr, -scale * 10, -scale * 10);
+		cairo_translate(cr, -scale * 20, -scale * 20);
 		
 		cairo_scale(cr, scale, scale);
 		
 		//cairo_rotate(cr, scale);
+
+		//rsvg_handle_render_cairo(svg, cr);
 		
-		rsvg_handle_render_cairo(svg, cr);
+		cairo_set_source(cr, pattern1);
+		cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+		
+		//cairo_push_group (cr);
+		
+		//cairo_pop_group_to_source (cr);
+		
+		cairo_move_to (cr, 0, 0);
+		cairo_set_line_width(cr, 8);
+		cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+		cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
+		
+		cairo_rectangle(cr, 240, 240, 340, 340);
+		cairo_rectangle(cr, 240, 240, 400, 400);
+		cairo_rectangle(cr, 0, 0, 120, 120);
+		cairo_rectangle(cr, 0, 0, 60, 60);
+		
+		cairo_line_to (cr, 800, 600);
+		
+		//crazyLine(cr, 0, 0, 800, 600);
+		
+		cairo_stroke (cr);
 		
 		cairo_restore(cr);
 	}
+	
+	cairo_pattern_destroy(pattern1);
 	
 	cairo_surface_flush(surface);
 	
@@ -623,7 +729,8 @@ void drawPNG(cairo_t* cr, cairo_surface_t *image) {
 	{
 	  scale = 1;
 	}
-		
+	
+	
 	for(i = 0; i < 6; i++)
 	{
 		cairo_save(cr); {
@@ -640,6 +747,65 @@ void drawPNG(cairo_t* cr, cairo_surface_t *image) {
 	scale += 1;
 	
 	cairo_surface_flush(image);
+	
+}
+
+void helloWorld(cairo_t* cr, cairo_surface_t *surface) {
+	
+	double r, g, b;
+	
+	//cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
+	
+	//cairo_set_source_rgba (cr, 1, 1, 1, 1);
+	//cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+	//cairo_paint (cr);
+	
+	/*
+	if (scale > 40)
+		{
+		scale = 0;
+		}*/
+	
+	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+	
+	// Random color
+	r = drand48();
+	g = drand48();
+	b = drand48();
+	
+	cairo_save (cr);
+	
+	cairo_translate (cr, spritex[0], spritey[0]);
+	cairo_set_source_rgba (cr, 0, 0, 0, 0.8);
+	cairo_set_font_size (cr, 184);
+	cairo_select_font_face (cr, "OutTest",
+							CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
+	//cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_GRAY);
+	if(scale <= 3)
+		{
+		cairo_show_text (cr, "abcd");
+		}
+	else if(scale <= 5)
+		{
+		cairo_show_text (cr, "efgh");
+		}
+	else if(scale <= 7)
+		{
+		cairo_show_text (cr, "ijkl");
+		}
+	else
+		{
+		cairo_show_text (cr, "mnop");
+		}
+	
+	
+	//cairo_gl_surface_swapbuffers (surface);
+	
+	cairo_restore (cr);
+	
+	//scale += 1;
+	
+	cairo_surface_flush(surface);
 	
 }
 
@@ -668,6 +834,7 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	CFTimeInterval startTime;
 	RsvgHandle*  svg;
 	RsvgDimensionData dims;
+	cairo_font_options_t *cfo;
 }
 - (void) draw;
 
@@ -707,6 +874,10 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	CGLContextObj cglContext = self.openGLContext.CGLContextObj;
 	CGLPixelFormatObj cglPixelFormat = self.pixelFormat.CGLPixelFormatObj;
 	
+	
+	//disables 60 FPS lock
+	//CGLSetParameter(cglContext, kCGLCPSwapInterval, 0);
+	
 	NSOpenGLPixelFormat *classPixelFormat = [[NSOpenGLPixelFormat alloc] initWithAttributes:attrs];
 	
 	cglPixelFormat = (__bridge CGLPixelFormatObj)classPixelFormat;
@@ -735,14 +906,26 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	
 	startTime = CACurrentMediaTime();
 	
-	imagesurface = IMG_Load("/Users/jessebennett/Documents/monster.png");
+	imagesurface = IMG_Load("/Users/jessebennett/Documents/textures/JaggedLines.png");
+	
+	//imagesurface->format->Amask = 0xFF000000;
+	//imagesurface->format->Ashift = 24;
+	
+	//SDL_SetColorKey(imagesurface, SDL_RLEACCEL, imagesurface->format->Amask);
 	
 	surface = cairosdl_surface_create(imagesurface);
 	
 	initRects();
 	
-	svg = rsvg_handle_new_from_file ("/Users/jessebennett/Documents/jessetext.svg", NULL);
+	svg = rsvg_handle_new_from_file ("/Users/jessebennett/Documents/0001.svg", NULL);
 	rsvg_handle_get_dimensions (svg, &dims);
+	
+	// alocate memory for font options
+	cfo = cairo_font_options_create();
+	
+	cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_FAST);
+	
+	cairo_set_antialias(cr, CAIRO_ANTIALIAS_FAST);
 	
 }
 
@@ -770,20 +953,24 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 		CGLLockContext(self.openGLContext.CGLContextObj);
 		
 		CFTimeInterval elapsedTime = CACurrentMediaTime() - startTime;
+	
+		//trap_render(cr, surface, WIDTH, HEIGHT);
 		
-		//drawSVG(cr, svg, dims, surface);
+		//clearBackground(cr, surface);
 		
-		trap_render(cr, WIDTH, HEIGHT);
+		drawSVG(cr, svg, dims, surface);
 		
 		simulStep(spritex, spritey, spritewidth, spriteheight, spritexvelocity, spriteyvelocity, (double)elapsedTime / 1000);
 		
-		drawPNG(cr, surface);
+		//helloWorld(cr, surface);
+		
+		//drawPNG(cr, surface);
 		
 		//drawSVG(cr, svg, dims, surface);
 		
 		//drawRects(cr, surface);
 		
-		//trap_render(cr, WIDTH, HEIGHT);
+		//trap_render(cr, surface, WIDTH, HEIGHT);
 		
 		//rand_drawing(cr, surface);
 		
@@ -804,6 +991,9 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 	[NSOpenGLContext clearCurrentContext];
 	
 	cairo_destroy(cr);
+	
+	// clean up the font option
+	cairo_font_options_destroy(cfo);
 	
 	cairo_surface_destroy(surface);
 	
