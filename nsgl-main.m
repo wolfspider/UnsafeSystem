@@ -562,8 +562,8 @@ void drawSVG(cairo_t* cr, RsvgHandle* svg, RsvgDimensionData dims, cairo_surface
 	cairo_pattern_t *pattern1;
 	
 	// Clear background as white
-	cairo_set_source_rgba(cr, 1, 1, 1, 1);
-	cairo_paint(cr);
+	//cairo_set_source_rgba(cr, 1, 1, 1, 1);
+	//cairo_paint(cr);
 	
 	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 	
@@ -593,16 +593,18 @@ void drawSVG(cairo_t* cr, RsvgHandle* svg, RsvgDimensionData dims, cairo_surface
 		
 		cairo_scale(cr, scale, scale);
 		
-		//cairo_rotate(cr, scale);
-
-		//rsvg_handle_render_cairo(svg, cr);
-		
 		cairo_set_source(cr, pattern1);
 		cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+		
+		//rsvg_handle_render_cairo(svg, cr);
 		
 		//cairo_push_group (cr);
 		
 		//cairo_pop_group_to_source (cr);
+	
+		//cairo_stroke (cr);
+		
+		//cairo_rotate(cr, scale);
 		
 		cairo_move_to (cr, 0, 0);
 		cairo_set_line_width(cr, 8);
@@ -617,7 +619,7 @@ void drawSVG(cairo_t* cr, RsvgHandle* svg, RsvgDimensionData dims, cairo_surface
 		cairo_line_to (cr, 800, 600);
 		
 		//crazyLine(cr, 0, 0, 800, 600);
-		
+
 		cairo_stroke (cr);
 		
 		cairo_restore(cr);
@@ -911,7 +913,7 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	//imagesurface->format->Amask = 0xFF000000;
 	//imagesurface->format->Ashift = 24;
 	
-	//SDL_SetColorKey(imagesurface, SDL_RLEACCEL, imagesurface->format->Amask);
+	SDL_SetColorKey(imagesurface, SDL_RLEACCEL, imagesurface->format->Amask);
 	
 	surface = cairosdl_surface_create(imagesurface);
 	
@@ -954,7 +956,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 		
 		CFTimeInterval elapsedTime = CACurrentMediaTime() - startTime;
 	
-		//trap_render(cr, surface, WIDTH, HEIGHT);
+		trap_render(cr, surface, WIDTH, HEIGHT);
 		
 		//clearBackground(cr, surface);
 		

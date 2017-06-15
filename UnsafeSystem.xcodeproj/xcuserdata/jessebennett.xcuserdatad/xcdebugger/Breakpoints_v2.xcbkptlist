@@ -42,11 +42,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "nsgl-main.m"
-            timestampString = "518395086.487043"
+            timestampString = "518402554.184395"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "749"
-            endingLineNumber = "749"
+            startingLineNumber = "751"
+            endingLineNumber = "751"
             landmarkName = "drawPNG()"
             landmarkType = "9">
          </BreakpointContent>
@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "nsgl-main.m"
-            timestampString = "518395933.27447"
+            timestampString = "518402554.184395"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "973"
-            endingLineNumber = "973"
+            startingLineNumber = "975"
+            endingLineNumber = "975"
             landmarkName = "-getFrameForTime:"
             landmarkType = "7">
          </BreakpointContent>
