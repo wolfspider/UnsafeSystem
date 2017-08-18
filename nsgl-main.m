@@ -879,6 +879,7 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	
 	// Set the display link for the current renderer
 	CGLContextObj cglContext = self.openGLContext.CGLContextObj;
+	CGLEnable( cglContext, kCGLCEMPEngine);
 	CGLPixelFormatObj cglPixelFormat = self.pixelFormat.CGLPixelFormatObj;
 	
 	

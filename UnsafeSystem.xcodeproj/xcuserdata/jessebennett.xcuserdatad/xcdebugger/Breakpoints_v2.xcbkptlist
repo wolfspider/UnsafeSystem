@@ -58,11 +58,11 @@
             ignoreCount = "0"
             continueAfterRunningActions = "No"
             filePath = "nsgl-main.m"
-            timestampString = "524624073.965944"
+            timestampString = "524731182.833197"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "981"
-            endingLineNumber = "981"
+            startingLineNumber = "982"
+            endingLineNumber = "982"
             landmarkName = "-getFrameForTime:"
             landmarkType = "7">
          </BreakpointContent>
