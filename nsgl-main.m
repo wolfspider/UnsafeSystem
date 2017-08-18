@@ -157,6 +157,11 @@ trap_render (cairo_t *cr, cairo_surface_t *surface, int w, int h)
 	int i;
 	int pass;
 	
+	if(cr == NULL || cairo_status(cr) == CAIRO_STATUS_NULL_POINTER)
+	{
+	return;
+	}
+	
 	cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
 	
 	cairo_set_source_rgba (cr, 1, 1, 1, 1);
@@ -865,7 +870,7 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	
 	
 	[self.openGLContext setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
-	
+
 	// Create a display link capable of being used with all active displays
 	CVDisplayLinkCreateWithActiveCGDisplays(&displayLink);
 	
@@ -891,6 +896,7 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	
 	context = super.openGLContext;
 	
+	
 	device = cairo_nsgl_device_create ((__bridge void *)(context));
 	
 	cairo_gl_device_set_thread_aware(device, true);
@@ -913,7 +919,7 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	//imagesurface->format->Amask = 0xFF000000;
 	//imagesurface->format->Ashift = 24;
 	
-	SDL_SetColorKey(imagesurface, SDL_RLEACCEL, imagesurface->format->Amask);
+	//SDL_SetColorKey(imagesurface, SDL_RLEACCEL, imagesurface->format->Amask);
 	
 	surface = cairosdl_surface_create(imagesurface);
 	
@@ -960,7 +966,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 		
 		//clearBackground(cr, surface);
 		
-		drawSVG(cr, svg, dims, surface);
+		//drawSVG(cr, svg, dims, surface);
 		
 		simulStep(spritex, spritey, spritewidth, spriteheight, spritexvelocity, spriteyvelocity, (double)elapsedTime / 1000);
 		
