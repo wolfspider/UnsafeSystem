@@ -915,19 +915,19 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	
 	startTime = CACurrentMediaTime();
 	
-	imagesurface = IMG_Load("/Users/jessebennett/Documents/textures/JaggedLines.png");
+	//imagesurface = IMG_Load("/Users/jessebennett/Documents/textures/JaggedLines.png");
 	
 	//imagesurface->format->Amask = 0xFF000000;
 	//imagesurface->format->Ashift = 24;
 	
 	//SDL_SetColorKey(imagesurface, SDL_RLEACCEL, imagesurface->format->Amask);
 	
-	surface = cairosdl_surface_create(imagesurface);
+	//surface = cairosdl_surface_create(imagesurface);
 	
-	initRects();
+	//initRects();
 	
-	svg = rsvg_handle_new_from_file ("/Users/jessebennett/Documents/0001.svg", NULL);
-	rsvg_handle_get_dimensions (svg, &dims);
+	//svg = rsvg_handle_new_from_file ("/Users/jessebennett/Documents/0001.svg", NULL);
+	//rsvg_handle_get_dimensions (svg, &dims);
 	
 	// alocate memory for font options
 	cfo = cairo_font_options_create();
