@@ -44,12 +44,284 @@
 #define CAIROSDL_RMASK (255U << CAIROSDL_RSHIFT)
 #define CAIROSDL_GMASK (255U << CAIROSDL_GSHIFT)
 #define CAIROSDL_BMASK (255U << CAIROSDL_BSHIFT)
+#define ARRAY_LENGTH(a) (sizeof (a) / sizeof (a)[0])
 
 double scale = 1.0;
-
+double textscale = 1.0;
+double svgscale = 1.0;
+int h = 60;
 static double animpts[NUMPTS * 2];
 static double deltas[NUMPTS * 2];
 static int fill_gradient = 1;
+
+
+int total = 0;
+float samples = 512;
+
+typedef int zone[10][10];
+
+zone arena = {
+	{1,1,1,1,1,1,1,1,1,1},
+	{1,0,0,0,0,0,0,0,0,1},
+	{1,0,0,1,0,1,1,1,0,1},
+	{1,0,1,0,0,0,0,1,0,1},
+	{1,0,0,0,0,1,0,1,0,1},
+	{1,0,1,1,0,0,0,0,0,1},
+	{1,0,0,1,0,1,1,1,0,1},
+	{1,1,0,1,0,0,0,1,0,1},
+	{1,0,0,1,0,1,0,0,0,1},
+	{1,1,1,1,1,1,1,1,1,1}
+};
+
+float playerPos[2] = {4,4};
+float playerDir = 0.4;
+float playerPosZ = 1;
+float playerVelY = 0;
+int key[5] = {0,0,0,0,0};
+
+int face[10] = {0};
+float data[100] = {0};
+
+int dataIdx = 0;
+
+int wallDistance(float theta){
+	
+	float x = playerPos[0];
+	float y = playerPos[1];
+	
+	double deltaX, deltaY, distX, distY, stepX, stepY;
+	float mapX, mapY;
+	int fIdx = 0;
+	int dIdx = 0;
+	
+	double atX = floor(x);
+	double atY = floor(y);
+	
+	float thisRow = -1;
+	float thisSide = -1;
+	
+	double lastHeight = 0;
+	int i,j;
+	
+	for(i = 0; i < samples; i++) {
+		
+		theta += pi/(3 * samples) + (2 * pi);
+		theta = fmodf(theta, 2 * pi);
+		
+		mapX = atX;
+		mapY = atY;
+		
+		deltaX=1/cosf(theta);
+		deltaY=1/sinf(theta);
+		
+		if (deltaX>0) {
+			stepX = 1;
+			distX = (mapX + 1 - x) * deltaX;
+		}
+		else {
+			stepX = -1;
+			distX = (x - mapX) * (deltaX*=-1);
+		}
+		if (deltaY>0) {
+			stepY = 1;
+			distY = (mapY + 1 - y) * deltaY;
+		}
+		else {
+			stepY = -1;
+			distY = (y - mapY) * (deltaY*=-1);
+		}
+		
+		for (j=0; j<20; j++) {
+			if (distX < distY) {
+				mapX += stepX;
+				if (arena[(int)mapX][(int)mapY]) {
+					if (thisRow!=mapX || thisSide!=0) {
+						if (i>0) {
+							
+							data[dIdx] = i;
+							dIdx++;
+							
+							data[dIdx] = lastHeight;
+							dIdx++;
+						}
+						
+						data[dIdx] = i;
+						dIdx++;
+						
+						data[dIdx] = distX;
+						dIdx++;
+						
+						thisSide = 0;
+						thisRow = mapX;
+						
+						face[fIdx] = 1 + stepX;
+						fIdx++;
+						
+					}
+					lastHeight = distX;
+					break;
+				}
+				
+				distX += deltaX;
+			}
+			else
+			{
+			mapY += stepY;
+			if (arena[(int)mapX][(int)mapY]) {
+				if (thisRow!=mapY || thisSide!=1) {
+					if (i>0) {
+						
+						data[dIdx] = i;
+						dIdx++;
+						
+						data[dIdx] = lastHeight;
+						dIdx++;
+					}
+					
+					data[dIdx] = i;
+					dIdx++;
+					
+					data[dIdx] = distY;
+					dIdx++;
+					
+					thisSide = 1;
+					thisRow = mapY;
+					
+					face[fIdx] = 2 + stepY;
+					fIdx++;
+				}
+				lastHeight=distY;
+				break;
+			}
+			
+			distY += deltaY;
+			}
+		
+		}
+		
+	}
+	
+		data[dIdx] = i;
+		dIdx++;
+	
+		data[dIdx] = lastHeight;
+		dIdx++;
+	
+	return dIdx;
+}
+
+bool nearWall(float x, float y){
+	
+	float xx, yy;
+	double i,j;
+	
+	if (x == NAN) x = playerPos[0];
+	if (y == NAN) y = playerPos[1];
+	
+	for(i = -0.1; i<=0.1; i+=0.2) {
+		xx=floor(x+i);
+		for(j = -0.1; j<=0.1; j+=0.2) {
+			yy=floor(y+j);
+			if (arena[(int)xx][(int)yy]) return true;
+		}
+	}
+	
+	return false;
+}
+
+void renderZone(cairo_t *cr, cairo_surface_t *surface, int width, int height) {
+	
+	
+	float theta;
+	int playerHeight, zoneLength;
+	float theta1, theta2, fix1, fix2, wallH1, wallH2;
+	double shade1,shade2;
+	
+	int i;
+	
+	if(cr == NULL || cairo_status(cr) == CAIRO_STATUS_NULL_POINTER)
+	{
+		return;
+	}
+	
+	cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
+	
+	cairo_set_source_rgba (cr, 1, 1, 1, 1);
+	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+	cairo_rectangle (cr, 0, 0, width, height);
+	cairo_fill (cr);
+	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
+	
+	theta = playerDir - pi / 6;
+	
+	memset(data, 0, sizeof data);
+	memset(face, 0, sizeof face);
+	
+	zoneLength = wallDistance(theta);
+	
+	cairo_save(cr); {
+	
+	for(i = 0; i < zoneLength; i+=4) {
+		
+		theta1 = playerDir - pi / 6 + pi * data[i] / (3 * samples);
+		theta2 = playerDir - pi / 6 + pi * data[i + 2] / (3 * samples);
+		
+		fix1 = cosf(theta1 - playerDir);
+		fix2 = cosf(theta2 - playerDir);
+		
+		playerHeight = 2 - playerPosZ;
+		
+		wallH1 = 100 / (data[i + 1] * fix1);
+		wallH2 = 100 / (data[i + 3] * fix2);
+		
+		double tl[2] = {data[i] * 2, 150 - wallH1 * playerHeight};
+		double tr[2] = {data[i + 2] * 2, 150 - wallH2 * playerHeight};
+		double br[2] = {data[i + 2] * 2, tr[1] + wallH2 * 2};
+		double bl[2] = {data[i] * 2, tl[1] + wallH1 * 2};
+		
+		shade1 = floor(wallH1 * 2 + 20);
+		
+		if(shade1 > 255)
+			shade1 = 255;
+		
+		shade2 = floor(wallH2 * 2 + 20);
+		
+		if(shade2 > 255)
+			shade2 = 255;
+		
+		cairo_pattern_t *pattern;
+		
+		pattern = cairo_pattern_create_linear (tl[0], 0, tr[0], 0);
+		
+		cairo_pattern_add_color_stop_rgba (pattern, 0.0, (face[i/4] % 2 == 0 ? shade1/255 : 0) , (face[i/4] % 2 == 1 ? shade1/255 : 0), (face[i/4] % 2 == 2 ? 0 : shade1/255 ), 1.0);
+		cairo_pattern_add_color_stop_rgba (pattern, 1.0, (face[i/4] % 2 == 0 ? shade2/255 : 0), (face[i/4] % 2 == 1 ? shade2/255 : 0), (face[i/4] % 2 == 2 ? 0 : shade2/255 ), 1.0);
+		cairo_pattern_set_filter (pattern, CAIRO_FILTER_FAST);
+		
+		cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
+		cairo_move_to(cr, tl[0], tl[1]);
+		cairo_line_to(cr, tr[0], tr[1]);
+		cairo_line_to(cr, br[0], br[1]);
+		cairo_line_to(cr, bl[0], bl[1]);
+		
+		cairo_set_source (cr, pattern);
+		cairo_pattern_destroy(pattern);
+		cairo_fill_preserve (cr);
+		
+		cairo_set_source_rgba(cr, 0, 0, 0, 1);
+		cairo_set_line_width (cr, LINEWIDTH);
+		cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
+		cairo_stroke(cr);
+		
+		}
+		
+	}
+	
+	cairo_restore(cr);
+	
+	cairo_surface_flush(surface);
+	
+}
+
 
 static cairo_user_data_key_t const CAIROSDL_TARGET_KEY[1] = {{1}};
 
@@ -60,6 +332,118 @@ sdl_surface_destroy_func (void *param)
 	SDL_Surface *sdl_surface = (SDL_Surface *)param;
 	if (sdl_surface != NULL)
 		SDL_FreeSurface (sdl_surface);
+}
+
+/* Performs a simple 2D Gaussian blur of radius @radius on surface @surface. */
+void
+blur_image_surface (cairo_surface_t *surface, int radius)
+{
+	cairo_surface_t *tmp;
+	int width, height;
+	int src_stride, dst_stride;
+	int x, y, z, w;
+	uint8_t *src, *dst;
+	uint32_t *s, *d, a, p;
+	int i, j, k;
+	uint8_t kernel[17];
+	const int size = ARRAY_LENGTH (kernel);
+	const int half = size / 2;
+	
+	if (cairo_surface_status (surface))
+		return;
+	
+	width = cairo_image_surface_get_width (surface);
+	height = cairo_image_surface_get_height (surface);
+	
+	switch (cairo_image_surface_get_format (surface)) {
+		case CAIRO_FORMAT_A1:
+		default:
+			/* Don't even think about it! */
+			break;
+			
+		case CAIRO_FORMAT_A8:
+			/* Handle a8 surfaces by effectively unrolling the loops by a
+			 * factor of 4 - this is safe since we know that stride has to be a
+			 * multiple of uint32_t. */
+			width /= 4;
+			break;
+			
+		case CAIRO_FORMAT_RGB24:
+		case CAIRO_FORMAT_ARGB32:
+			break;
+	}
+	
+	tmp = cairo_image_surface_create (CAIRO_FORMAT_ARGB32, width, height);
+	if (cairo_surface_status (tmp))
+		return;
+	
+	src = cairo_image_surface_get_data (surface);
+	src_stride = cairo_image_surface_get_stride (surface);
+	
+	dst = cairo_image_surface_get_data (tmp);
+	dst_stride = cairo_image_surface_get_stride (tmp);
+	
+	a = 0;
+	for (i = 0; i < size; i++) {
+		double f = i - half;
+		a += kernel[i] = exp (- f * f / 30.0) * 80;
+	}
+	
+	/* Horizontally blur from surface -> tmp */
+	for (i = 0; i < height; i++) {
+		s = (uint32_t *) (src + i * src_stride);
+		d = (uint32_t *) (dst + i * dst_stride);
+		for (j = 0; j < width; j++) {
+			if (radius < j && j < width - radius) {
+				d[j] = s[j];
+				continue;
+			}
+			
+			x = y = z = w = 0;
+			for (k = 0; k < size; k++) {
+				if (j - half + k < 0 || j - half + k >= width)
+					continue;
+				
+				p = s[j - half + k];
+				
+				x += ((p >> 24) & 0xff) * kernel[k];
+				y += ((p >> 16) & 0xff) * kernel[k];
+				z += ((p >>  8) & 0xff) * kernel[k];
+				w += ((p >>  0) & 0xff) * kernel[k];
+			}
+			d[j] = (x / a << 24) | (y / a << 16) | (z / a << 8) | w / a;
+		}
+	}
+	
+	/* Then vertically blur from tmp -> surface */
+	for (i = 0; i < height; i++) {
+		s = (uint32_t *) (dst + i * dst_stride);
+		d = (uint32_t *) (src + i * src_stride);
+		for (j = 0; j < width; j++) {
+			if (radius <= i && i < height - radius) {
+				d[j] = s[j];
+				continue;
+			}
+			
+			x = y = z = w = 0;
+			for (k = 0; k < size; k++) {
+				if (i - half + k < 0 || i - half + k >= height)
+					continue;
+				
+				s = (uint32_t *) (dst + (i - half + k) * dst_stride);
+				p = s[j];
+				
+				x += ((p >> 24) & 0xff) * kernel[k];
+				y += ((p >> 16) & 0xff) * kernel[k];
+				z += ((p >>  8) & 0xff) * kernel[k];
+				w += ((p >>  0) & 0xff) * kernel[k];
+			}
+			d[j] = (x / a << 24) | (y / a << 16) | (z / a << 8) | w / a;
+		}
+	}
+	
+	cairo_surface_destroy (tmp);
+	//cairo_surface_mark_dirty (surface);
 }
 
 
@@ -173,7 +557,7 @@ trap_render (cairo_t *cr, cairo_surface_t *surface, int w, int h)
 	cairo_set_line_width (cr, 1.0);
 	
 	cairo_save (cr); {
-		cairo_scale (cr, (double) w / 512.0, (double) h / 512.0);
+		cairo_scale (cr, (double) w / w, (double) h / h);
 		
 		cairo_save (cr); {
 			cairo_translate (cr, -10.0, -10.0);
@@ -299,12 +683,13 @@ trap_render (cairo_t *cr, cairo_surface_t *surface, int w, int h)
 		cairo_fill_preserve (cr);
 		cairo_set_source_rgba (cr, STROKE_R, STROKE_G, STROKE_B, STROKE_OPACITY);
 		cairo_set_line_width (cr, LINEWIDTH);
+		
 		cairo_stroke (cr);
 		
 		cairo_restore(cr);
 	
 	}
-	
+
 	cairo_surface_flush(surface);
 	
 }
@@ -564,25 +949,42 @@ void drawSVG(cairo_t* cr, RsvgHandle* svg, RsvgDimensionData dims, cairo_surface
 	
 	//int i;
 	
-	cairo_pattern_t *pattern1;
+	//cairo_pattern_t *pattern1;
 	
 	// Clear background as white
-	//cairo_set_source_rgba(cr, 1, 1, 1, 1);
-	//cairo_paint(cr);
+	cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
 	
-	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+	cairo_set_source_rgba (cr, 1, 1, 1, 1);
+	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+	cairo_rectangle (cr, 0, 0, WIDTH, HEIGHT);
+	cairo_fill (cr);
+	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 	
-	pattern1 = cairo_pattern_create_for_surface(surface);
+	//pattern1 = cairo_pattern_create_for_surface(surface);
 	
 	//cairo_save(cr);
 	
-	
-	if (scale > 2.5)
+	if(cr == NULL || cairo_status(cr) == CAIRO_STATUS_NULL_POINTER)
 		{
-		scale = 1.0;
+		return;
 		}
 	
-	scale += 0.005;
+	
+	 cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
+	
+	 cairo_set_source_rgba (cr, 1, 1, 1, 1);
+	 cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+	 cairo_rectangle (cr, 0, 0, WIDTH, HEIGHT);
+	 cairo_fill (cr);
+	 cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
+	
+	
+	if (svgscale > 2.5)
+		{
+		svgscale = 1.0;
+		}
+	
+	svgscale += 0.005;
 	
 	cairo_save(cr); {
 		
@@ -594,34 +996,34 @@ void drawSVG(cairo_t* cr, RsvgHandle* svg, RsvgDimensionData dims, cairo_surface
 		
 		cairo_transform(cr, &matrix);
 		
-		cairo_translate(cr, -scale * 20, -scale * 20);
+		cairo_translate(cr, -svgscale * 80, -svgscale * 80);
 		
-		cairo_scale(cr, scale, scale);
+		cairo_scale(cr, svgscale, svgscale);
 		
-		cairo_set_source(cr, pattern1);
-		cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
+		//cairo_set_source(cr, pattern1);
+		//cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REPEAT);
 		
-		//rsvg_handle_render_cairo(svg, cr);
+		rsvg_handle_render_cairo(svg, cr);
 		
-		//cairo_push_group (cr);
+		cairo_push_group (cr);
 		
-		//cairo_pop_group_to_source (cr);
+		cairo_pop_group_to_source (cr);
 	
 		//cairo_stroke (cr);
 		
 		//cairo_rotate(cr, scale);
 		
-		cairo_move_to (cr, 0, 0);
-		cairo_set_line_width(cr, 8);
-		cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-		cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
+		//cairo_move_to (cr, 0, 0);
+		//cairo_set_line_width(cr, 8);
+		//cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+		//cairo_set_line_join(cr, CAIRO_LINE_JOIN_ROUND);
 		
-		cairo_rectangle(cr, 240, 240, 340, 340);
-		cairo_rectangle(cr, 240, 240, 400, 400);
-		cairo_rectangle(cr, 0, 0, 120, 120);
-		cairo_rectangle(cr, 0, 0, 60, 60);
+		//cairo_rectangle(cr, 240, 240, 340, 340);
+		//cairo_rectangle(cr, 240, 240, 400, 400);
+		//cairo_rectangle(cr, 0, 0, 120, 120);
+		//cairo_rectangle(cr, 0, 0, 60, 60);
 		
-		cairo_line_to (cr, 800, 600);
+		//cairo_line_to (cr, 800, 600);
 		
 		//crazyLine(cr, 0, 0, 800, 600);
 
@@ -630,7 +1032,7 @@ void drawSVG(cairo_t* cr, RsvgHandle* svg, RsvgDimensionData dims, cairo_surface
 		cairo_restore(cr);
 	}
 	
-	cairo_pattern_destroy(pattern1);
+	//cairo_pattern_destroy(pattern1);
 	
 	cairo_surface_flush(surface);
 	
@@ -730,13 +1132,25 @@ void drawPNG(cairo_t* cr, cairo_surface_t *image) {
 	
 	int i;
 	
-	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+	if(cr == NULL || cairo_status(cr) == CAIRO_STATUS_NULL_POINTER)
+		{
+		return;
+		}
+	
+	/*
+	cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
+	
+	cairo_set_source_rgba (cr, 0, 0, 0, 1);
+	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+	cairo_rectangle (cr, 0, 0, WIDTH, HEIGHT);
+	cairo_fill (cr);
+	 */
+	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 	
 	if (scale > 10)
 	{
 	  scale = 1;
 	}
-	
 	
 	for(i = 0; i < 6; i++)
 	{
@@ -757,65 +1171,112 @@ void drawPNG(cairo_t* cr, cairo_surface_t *image) {
 	
 }
 
-void helloWorld(cairo_t* cr, cairo_surface_t *surface) {
+void mobPNG(cairo_t* cr, cairo_surface_t *surface) {
 	
-	double r, g, b;
+	int i;
 	
-	//cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
-	
-	//cairo_set_source_rgba (cr, 1, 1, 1, 1);
-	//cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
-	//cairo_paint (cr);
-	
-	/*
-	if (scale > 40)
+	if(cr == NULL || cairo_status(cr) == CAIRO_STATUS_NULL_POINTER)
 		{
-		scale = 0;
-		}*/
-	
-	cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-	
-	// Random color
-	r = drand48();
-	g = drand48();
-	b = drand48();
-	
-	cairo_save (cr);
-	
-	cairo_translate (cr, spritex[0], spritey[0]);
-	cairo_set_source_rgba (cr, 0, 0, 0, 0.8);
-	cairo_set_font_size (cr, 184);
-	cairo_select_font_face (cr, "OutTest",
-							CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
-	//cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_GRAY);
-	if(scale <= 3)
-		{
-		cairo_show_text (cr, "abcd");
-		}
-	else if(scale <= 5)
-		{
-		cairo_show_text (cr, "efgh");
-		}
-	else if(scale <= 7)
-		{
-		cairo_show_text (cr, "ijkl");
-		}
-	else
-		{
-		cairo_show_text (cr, "mnop");
+		return;
 		}
 	
+	cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
 	
-	//cairo_gl_surface_swapbuffers (surface);
+	cairo_set_source_rgba (cr, 1, 1, 1, 1);
+	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+	cairo_rectangle (cr, 0, 0, 400, 400);
+	cairo_fill (cr);
+	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
 	
-	cairo_restore (cr);
+	cairo_save(cr);
+	cairo_translate(cr, 0, 0);
+	cairo_rectangle (cr, 0, 0, 400, 400);
+	cairo_clip(cr);
+	cairo_new_path(cr);
+	cairo_set_source_surface(cr, surface, 0, 0);
+	cairo_paint(cr);
 	
-	//scale += 1;
+	cairo_restore(cr);
 	
 	cairo_surface_flush(surface);
 	
 }
 
+
+
+void helloWorld(cairo_t* cr, cairo_surface_t *surface) {
+	
+	if(cr == NULL || cairo_status(cr) == CAIRO_STATUS_NULL_POINTER)
+	{
+		return;
+	}
+	
+	//bool gate = false;
+	
+	/*
+	cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
+	
+	cairo_set_source_rgba (cr, 1, 1, 1, 1);
+	cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+	cairo_rectangle (cr, 0, 0, WIDTH, HEIGHT);
+	cairo_fill (cr); */
+	
+	cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
+	
+	
+	//cairo_save (cr);
+	
+	/*
+	if(textscale > 2) {
+		gate = true;
+	}
+	
+	if(textscale < 2) {
+		gate = false;
+	}*/
+	
+	cairo_set_font_size(cr, h);
+	//cairo_text_extents(cr, "[[Wolfspider Engine™]]", &extents);
+	
+	//pat = cairo_pattern_create_linear(0, 1, 0, h);
+	//cairo_pattern_set_extend(pat, CAIRO_EXTEND_REFLECT);
+	//cairo_pattern_add_color_stop_rgba (pat, 0.0, 0.0, 0.0, 1.0, 0.75);
+	//cairo_pattern_add_color_stop_rgba (pat, 1.0, 1.0, 0.0, 0.0, 1.0);
+	
+	
+	/*cairo_move_to(cr, ( ( ( extents.width / 2 ) / textscale ) + ( extents.width / 2 ) )
+				  - ( WIDTH - extents.width * 2.2 ), HEIGHT / 2 );*/
+	
+	cairo_move_to(cr, 75, 100);
+	//cairo_scale(cr, textscale, textscale);
+	cairo_set_source_rgb(cr, 0, 0, 0);
+	cairo_show_text(cr, "[[Wolfspider Engine™]]");
+	
+	//cairo_set_source(cr, pat);
+	//cairo_fill(cr);
+	
+	//cairo_pattern_destroy(pat);
+	
+	/*
+	if(gate == false)
+	{
+		textscale += 0.005;
+	}
+	
+	if(gate == true)
+	{
+	    textscale -= 1;
+	}*/
+	
+	//memset(&extents, 0, sizeof(extents));
+	
+	//cairo_pattern_destroy(pat);
+	
+	//cairo_restore (cr);
+	
+	cairo_surface_flush(surface);
+	
+}
 
 const NSOpenGLPixelFormatAttribute attrs[] = {
 	NSOpenGLPFADoubleBuffer,
@@ -825,15 +1286,18 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	NSOpenGLPFASampleBuffers, 1,
 	NSOpenGLPFASamples, 4,
 	NSOpenGLPFAMultisample,
-	0
+	1
 };
 
 @interface StretchView : NSOpenGLView {
 @private
 	NSTimer *timer;
 	cairo_surface_t *surface;
+	cairo_surface_t *testsurface;
 	SDL_Surface *imagesurface;
 	cairo_t *cr;
+	//cairo_pattern_t *pat;
+	//cairo_text_extents_t extents;
 	NSTimeInterval now;
 	CVDisplayLinkRef displayLink; //display link for managing rendering thread
 	NSOpenGLContext *context;
@@ -842,6 +1306,8 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	RsvgHandle*  svg;
 	RsvgDimensionData dims;
 	cairo_font_options_t *cfo;
+	//GLsync fence;
+	
 }
 - (void) draw;
 
@@ -867,7 +1333,6 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	[self.openGLContext makeCurrentContext];
 	
 	GLint swapInt = 1;
-	
 	
 	[self.openGLContext setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
 
@@ -897,7 +1362,6 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	
 	context = super.openGLContext;
 	
-	
 	device = cairo_nsgl_device_create ((__bridge void *)(context));
 	
 	cairo_gl_device_set_thread_aware(device, true);
@@ -911,30 +1375,33 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 		cr = cairo_create (surface);
 		}
 	
-	//imagesurface = cairo_image_surface_create_from_png("/Users/jessebennett/Documents/monster.png");
+	
+	//surface = cairo_image_surface_create_from_png("/Users/jessebennett/Documents/monster.png");
 	
 	startTime = CACurrentMediaTime();
 	
-	//imagesurface = IMG_Load("/Users/jessebennett/Documents/textures/JaggedLines.png");
+	imagesurface = IMG_Load("/Users/jessebennett/Documents/monster.png");
 	
 	//imagesurface->format->Amask = 0xFF000000;
-	//imagesurface->format->Ashift = 24;
 	
-	//SDL_SetColorKey(imagesurface, SDL_RLEACCEL, imagesurface->format->Amask);
+	//SDL_SetColorKey(imagesurface, SDL_DONTFREE, imagesurface->format->Amask);
 	
-	//surface = cairosdl_surface_create(imagesurface);
+	surface = cairosdl_surface_create(imagesurface);
 	
-	//initRects();
+	initRects();
 	
-	//svg = rsvg_handle_new_from_file ("/Users/jessebennett/Documents/0001.svg", NULL);
+	//svg = rsvg_handle_new_from_file ("/Users/jessebennett/Documents/gstation.svg", NULL);
 	//rsvg_handle_get_dimensions (svg, &dims);
-	
-	// alocate memory for font options
-	cfo = cairo_font_options_create();
 	
 	cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_FAST);
 	
+	cairo_select_font_face(cr, "Marker Felt", CAIRO_FONT_SLANT_NORMAL,CAIRO_FONT_WEIGHT_NORMAL);
+	
+	//blur_image_surface(surface, 45);
+	
 	cairo_set_antialias(cr, CAIRO_ANTIALIAS_FAST);
+	
+	//glEnable(GL_DOUBLEBUFFER);
 	
 }
 
@@ -961,19 +1428,30 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 		// Add a mutex around to avoid the threads from accessing the context simultaneously
 		CGLLockContext(self.openGLContext.CGLContextObj);
 		
+		//glClientWaitSync(fence, GL_SYNC_FLUSH_COMMANDS_BIT, GL_TIMEOUT_IGNORED);
+		
 		CFTimeInterval elapsedTime = CACurrentMediaTime() - startTime;
-	
-		trap_render(cr, surface, WIDTH, HEIGHT);
+		
+		
+		//trap_render(cr, surface, WIDTH, HEIGHT);
 		
 		//clearBackground(cr, surface);
 		
-		//drawSVG(cr, svg, dims, surface);
-		
+	
+		//if(cr != NULL && surface != NULL && svg != NULL )
+	    //{
 		simulStep(spritex, spritey, spritewidth, spriteheight, spritexvelocity, spriteyvelocity, (double)elapsedTime / 1000);
 		
-		//helloWorld(cr, surface);
+		//drawSVG(cr, svg, dims, surface);
 		
-		//drawPNG(cr, surface);
+		renderZone(cr, surface, WIDTH, HEIGHT);
+		
+		//helloWorld(cr, surface);
+		drawPNG(cr, surface);
+	
+		//mobPNG(cr,surface);
+		
+		//}
 		
 		//drawSVG(cr, svg, dims, surface);
 		
@@ -985,8 +1463,9 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 		
 		[self.openGLContext flushBuffer];
 		
-		CGLUnlockContext(self.openGLContext.CGLContextObj);
+		//fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
 		
+		CGLUnlockContext(self.openGLContext.CGLContextObj);
 		
 		return kCVReturnSuccess;
 	}
@@ -1002,7 +1481,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 	cairo_destroy(cr);
 	
 	// clean up the font option
-	cairo_font_options_destroy(cfo);
+	//cairo_font_options_destroy(cfo);
 	
 	cairo_surface_destroy(surface);
 	
@@ -1016,6 +1495,90 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 - (void) draw
 {
 	[self setNeedsDisplay: YES];
+}
+
+// Next four methods set main view as first responder to accept keyboard input
+
+- (BOOL)acceptsFirstResponder
+{
+	NSLog(@"I accepted being a first responder! Yea!");
+	return YES;
+}
+
+- (BOOL)resignFirstResponder
+{
+	[self setNeedsDisplay:YES];
+	return YES;
+}
+
+- (BOOL)becomeFirstResponder
+{
+	[self setNeedsDisplay:YES];
+	return YES;
+}
+
+- (void)keyDown:(NSEvent *)theEvent
+{
+	NSString*   const   character   =   [theEvent charactersIgnoringModifiers];
+	unichar     const   code        =   [character characterAtIndex:0];
+	
+	bool change = false;
+	
+	switch (code)
+	{
+		case NSUpArrowFunctionKey:
+		{
+			if (playerVelY<0.1) playerVelY += 0.02;
+			break;
+		}
+		case NSDownArrowFunctionKey:
+		{
+			if (playerVelY>-0.1) playerVelY -= 0.02;
+			break;
+		}
+		case NSLeftArrowFunctionKey:
+		{
+			playerDir-=0.1;
+			change = true;
+			break;
+		}
+		case NSRightArrowFunctionKey:
+		{
+			playerDir+=0.1;
+			change = true;
+			break;
+		}
+	}
+	
+	if(change == true) {
+		
+		playerDir += 2*pi;
+		playerDir = fmodf(playerDir, 2*pi);
+		
+	}
+	
+	if (playerVelY <- 0.02) playerVelY += 0.015;
+	else if (playerVelY > 0.02) playerVelY -= 0.015;
+	//else playerVelY=0;
+	
+	if (playerVelY != 0) {
+		
+		float oldX = playerPos[0];
+		float oldY = playerPos[1];
+		float newX = oldX+cos(playerDir)*playerVelY;
+		float newY = oldY+sin(playerDir)*playerVelY;;
+		
+		if (nearWall(newX, oldY) == false) {
+			playerPos[0]=newX;
+			oldX=newX;
+			//change = true;
+		}
+		if (nearWall(oldX, newY) == false) {
+			playerPos[1]=newY;
+			//change = true;
+		}
+		
+	}
 	
 }
 
@@ -1025,12 +1588,14 @@ int main (int argc, char **argv)
 {
 	@autoreleasepool {
 		
-		[NSApplication sharedApplication].presentationOptions = (NSApplicationPresentationOptions)NSFullScreenWindowMask;
+		ProcessSerialNumber psn = {0, kCurrentProcess};
+		TransformProcessType(&psn, kProcessTransformToForegroundApplication);
 		
 		int style = (NSTitledWindowMask|NSClosableWindowMask|NSMiniaturizableWindowMask);
 		
 		NSScreen *screen = [NSScreen mainScreen];
 		NSRect frame = screen.visibleFrame;
+		
 		int frame_height = frame.size.height;
 		
 		NSWindow *win = [[ NSWindow alloc] initWithContentRect: NSMakeRect (0, frame_height - HEIGHT, WIDTH, HEIGHT)
@@ -1038,10 +1603,15 @@ int main (int argc, char **argv)
 													   backing: NSBackingStoreBuffered
 														 defer: YES];
 		
-		StretchView *view = [[StretchView alloc] initWithFrame: NSMakeRect (0, 0, WIDTH, HEIGHT)];
+		[win setTitlebarAppearsTransparent:YES];
+		
+		StretchView *view = [[StretchView alloc] initWithFrame: frame ];
+		
 		win.contentView = view;
 		win.collectionBehavior = NSWindowCollectionBehaviorFullScreenPrimary;
+		
 		[win makeKeyAndOrderFront: win];
+		
 		[NSApp run];
 		
 		
@@ -1049,3 +1619,4 @@ int main (int argc, char **argv)
 	
 	return 0;
 }
+

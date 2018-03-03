@@ -50,6 +50,9 @@
 
 double scale = 1.0;
 
+double mouseX = 0.0;
+double mouseY = 0.0;
+
 static double animpts[NUMPTS * 2];
 static double deltas[NUMPTS * 2];
 static int fill_gradient = 1;
@@ -85,12 +88,12 @@ void cairo_code_tape_render(cairo_t *cr) {
     cairo_set_source(cr, pattern);
     cairo_pattern_destroy(pattern);
     
-    if (scale >= 1.05)
-    {
-        scale = 1.0;
-    }
+    //if (scale >= 1.05)
+    //{
+        //scale = 1.0;
+    //}
     
-    scale += 0.001;
+    //scale += 0.001;
     
     cairo_translate(cr, 1, 1);
     
@@ -260,7 +263,7 @@ void cairo_code_tape_render(cairo_t *cr) {
     
     cairo_move_to(cr, 201.757813, 103.054688);
     cairo_set_tolerance(cr, 0.1);
-    cairo_set_antialias(cr, CAIRO_ANTIALIAS_DEFAULT);
+    cairo_set_antialias(cr, CAIRO_ANTIALIAS_FAST);
     cairo_set_fill_rule(cr, CAIRO_FILL_RULE_WINDING);
     cairo_fill_preserve(cr);
     cairo_close_path(cr);
@@ -272,7 +275,7 @@ void cairo_code_tape_render(cairo_t *cr) {
         
         cairo_stroke(cr);
         
-    cairo_restore(cr);
+    //cairo_restore(cr);
     
     }
     //cairosdl_destroy (cr, cairo_get_target (cr));
@@ -343,6 +346,7 @@ gear (cairo_t *cr,
     }
     
     cairo_close_path (cr);
+	
 }
 
 static void
@@ -379,7 +383,7 @@ static double gear2_rotation = 0.33;
 static double gear3_rotation = 0.50;
 
 void
-trap_render (cairo_t *cr, int w, int h)
+trap_render (cairo_t *cr, cairo_surface_t *surface, int w, int h)
 {
     double *ctrlpts = animpts;
     int len = (NUMPTS * 2);
@@ -391,6 +395,11 @@ trap_render (cairo_t *cr, int w, int h)
     double midy = (cury + prevy) / 2.0;
     int i;
     int pass;
+	
+	if(cr == NULL || cairo_status(cr) == CAIRO_STATUS_NULL_POINTER)
+		{
+		return;
+		}
     
     cairo_set_fill_rule (cr, CAIRO_FILL_RULE_EVEN_ODD);
     
@@ -401,9 +410,9 @@ trap_render (cairo_t *cr, int w, int h)
     cairo_set_operator (cr, CAIRO_OPERATOR_OVER);
     cairo_set_source_rgba (cr, 0.75, 0.75, 0.75, 1.0);
     cairo_set_line_width (cr, 1.0);
-    
+	
     cairo_save (cr); {
-        cairo_scale (cr, (double) w / 512.0, (double) h / 512.0);
+        cairo_scale (cr, (double) w / w, (double) h / h);
         
         cairo_save (cr); {
             cairo_translate (cr, -10.0, -10.0);
@@ -414,7 +423,8 @@ trap_render (cairo_t *cr, int w, int h)
             cairo_fill (cr);
             cairo_restore (cr);
         }
-        cairo_save (cr); {
+		
+		cairo_save (cr); {
             cairo_translate (cr, -10.0, -10.0);
             cairo_translate (cr, 369.0, 330.0);
             cairo_rotate (cr, gear2_rotation);
@@ -423,6 +433,7 @@ trap_render (cairo_t *cr, int w, int h)
             cairo_fill (cr);
             cairo_restore (cr);
         }
+		
         cairo_save (cr); {
             cairo_translate (cr, -10.0, -10.0);
             cairo_translate (cr, 170.0, 116.0);
@@ -437,8 +448,20 @@ trap_render (cairo_t *cr, int w, int h)
             cairo_translate (cr, 170.0, 330.0);
             cairo_rotate (cr, gear1_rotation);
             gear (cr, 30.0, 120.0, 20, 20.0);
-            cairo_set_source_rgb (cr, 0.75, 0.75, 0.75);
-            cairo_fill_preserve (cr);
+			
+			if(cairo_in_fill(cr, mouseX - 170.0, mouseY - 330.0) || cairo_in_stroke(cr, mouseX - 170.0, mouseY - 330.0))
+				{
+				    cairo_set_source_rgb (cr, 0.15, 0.45, 0.15);
+					cairo_fill_preserve (cr);
+				}
+			else
+				{
+					cairo_set_source_rgb (cr, 0.75, 0.75, 0.75);
+					cairo_fill_preserve (cr);
+				}
+			
+            //cairo_set_source_rgb (cr, 0.75, 0.75, 0.75);
+            //cairo_fill_preserve (cr);
             cairo_set_source_rgb (cr, 0.25, 0.25, 0.25);
             cairo_stroke (cr);
             cairo_restore (cr);
@@ -447,18 +470,43 @@ trap_render (cairo_t *cr, int w, int h)
             cairo_translate (cr, 369.0, 330.0);
             cairo_rotate (cr, gear2_rotation);
             gear (cr, 15.0, 75.0, 12, 20.0);
-            cairo_set_source_rgb (cr, 0.75, 0.75, 0.75);
-            cairo_fill_preserve (cr);
+			
+			
+			if(cairo_in_fill(cr, mouseX - 369.0, mouseY - 330.0) || cairo_in_stroke(cr, mouseX - 369.0, mouseY - 330.0))
+				{
+					cairo_set_source_rgb (cr, 0.15, 0.45, 0.15);
+					cairo_fill_preserve (cr);
+				}
+			else
+				{
+					cairo_set_source_rgb (cr, 0.75, 0.75, 0.75);
+					cairo_fill_preserve (cr);
+				}
+			
+			
             cairo_set_source_rgb (cr, 0.25, 0.25, 0.25);
             cairo_stroke (cr);
             cairo_restore (cr);
         }
+		
         cairo_save (cr); {
             cairo_translate (cr, 170.0, 116.0);
             cairo_rotate (cr, gear3_rotation);
             gear (cr, 20.0, 90.0, 14, 20.0);
-            cairo_set_source_rgb (cr, 0.75, 0.75, 0.75);
-            cairo_fill_preserve (cr);
+			
+			if(cairo_in_fill(cr, mouseX - 170.0, mouseY - 116.0) || cairo_in_stroke(cr, mouseX - 170.0, mouseY - 116.0))
+				{
+					cairo_set_source_rgb (cr, 0.15, 0.45, 0.15);
+					cairo_fill_preserve (cr);
+				}
+			else
+				{
+					cairo_set_source_rgb (cr, 0.75, 0.75, 0.75);
+					cairo_fill_preserve (cr);
+				}
+			
+            //cairo_set_source_rgb (cr, 0.75, 0.75, 0.75);
+            //cairo_fill_preserve (cr);
             cairo_set_source_rgb (cr, 0.25, 0.25, 0.25);
             cairo_stroke (cr);
             cairo_restore (cr);
@@ -466,13 +514,13 @@ trap_render (cairo_t *cr, int w, int h)
         
         cairo_restore (cr);
     }
-    
+	
     gear1_rotation += 0.01;
     gear2_rotation -= (0.01 * (20.0 / 12.0));
     gear3_rotation -= (0.01 * (20.0 / 14.0));
     
     stroke_and_fill_step (w, h);
-    
+	
     cairo_save(cr); {
         
         cairo_translate (cr, -10, -10);
@@ -507,7 +555,8 @@ trap_render (cairo_t *cr, int w, int h)
                 cairo_translate (cr, 10, 10);
             }
         }
-        
+		
+		
         if (fill_gradient) {
             double x1, y1, x2, y2;
             cairo_pattern_t *pattern;
@@ -525,17 +574,17 @@ trap_render (cairo_t *cr, int w, int h)
         } else {
             cairo_set_source_rgba (cr, FILL_R, FILL_G, FILL_B, FILL_OPACITY);
         }
-        
+		
         cairo_fill_preserve (cr);
         cairo_set_source_rgba (cr, STROKE_R, STROKE_G, STROKE_B, STROKE_OPACITY);
         cairo_set_line_width (cr, LINEWIDTH);
         cairo_stroke (cr);
-        
         cairo_restore(cr);
-        
+		
     }
-    
-    /*
+	 
+	
+	
      double x, y, px, ux=1, uy=1, dashlength;
      char text[]="Cairo Testing";
      cairo_font_extents_t fe;
@@ -546,8 +595,8 @@ trap_render (cairo_t *cr, int w, int h)
     //cr = cairo_create (surface);
     /* Example is in 26.0 x 1.0 coordinate space */
     
-    /*
-     cairo_scale (cr, 240, 240);
+	
+     //cairo_scale (cr, 240, 240);
      cairo_set_font_size (cr, 0.15);
      
      cairo_font_options_t *cfo;
@@ -556,8 +605,8 @@ trap_render (cairo_t *cr, int w, int h)
      cfo = cairo_font_options_create();
      
      /* Drawing code goes here */
-    /*
-     cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
+	
+     //cairo_set_source_rgb (cr, 0.5, 0.5, 0.5);
      cairo_select_font_face (cr, "Andale Mono",
      CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
      cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_GRAY);
@@ -574,15 +623,20 @@ trap_render (cairo_t *cr, int w, int h)
      y = 0.5 - fe.descent + fe.height / 2;
      
      /* text */
-    /*
+	
      cairo_move_to (cr, x, y);
-     cairo_set_source_rgb (cr, 1, 1, 1);
+     cairo_set_source_rgb (cr, 0.5, 0.5, 0.5);
      cairo_show_text (cr, text);
-     
+	
+     cairo_text_path(cr, text);
+	 cairo_stroke(cr);
      // clean up the font option
-     cairo_font_options_destroy(cfo); */
+     cairo_font_options_destroy(cfo);
     
     //cairosdl_destroy (cr, cairo_get_target (cr));
+	
+	cairo_surface_flush(surface);
+	
 }
 
 
@@ -759,7 +813,7 @@ static ShaderData shaders[NUM_SHADERS] = {
         "\n"
         "void main()\n"
         "{\n"
-        "    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
+        "    gl_Position = gl_Vertex;\n"
         "    v_color = gl_Color;\n"
         "    v_texCoord = vec2(gl_MultiTexCoord0);\n"
         "}",
@@ -1050,7 +1104,7 @@ void SDL_GL_InitTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint textur
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     
     glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA, surface->w, surface->h, 0, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
-    
+	
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -1079,26 +1133,28 @@ void updatePixels(GLubyte* dst, int size)
 }
 
 
-void SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint texture)
+void SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint texture )
 {
     // "index" is used to copy pixels from a PBO to a texture object
     // "nextIndex" is used to update pixels in the other PBO
     
     idx = (idx + 1) % 2;
     nextIdx = (idx + 1) % 2;
-    
+	
     glBindTexture(GL_TEXTURE_2D, texture);
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pboIds[idx]);
+    //glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pboIds[idx]);
+	glReadPixels(0, 0, 512, 512, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
     
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, surface->w, surface->h, GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels);
     
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pboIds[nextIdx]);
+    //glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, pboIds[nextIdx]);
     
     //magic number here is width * height * channels (RGBA) which is 4
     
-    glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, 1048576, 0, GL_STREAM_DRAW_ARB);
+    //glBufferData(GL_PIXEL_UNPACK_BUFFER_ARB, 1048576, 0, GL_STREAM_DRAW_ARB);
     
-    GLubyte* ptr = (GLubyte*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB,
+	/*
+	GLubyte* ptr = (GLubyte*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB,
                                          GL_WRITE_ONLY_ARB);
     
     if(ptr)
@@ -1106,9 +1162,9 @@ void SDL_GL_LoadTexture(SDL_Surface * surface, GLfloat * texcoord, GLuint textur
         // update data directly on the mapped buffer
         updatePixels(ptr, 1048576);
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER_ARB); // release the mapped buffer
-    }
+    }*/
     
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
+    //glBindBuffer(GL_PIXEL_UNPACK_BUFFER_ARB, 0);
     
 }
 
@@ -1118,14 +1174,12 @@ GLuint InitGL(int Width, int Height)                    // We call this right af
     
     GLuint texture;
     GLdouble aspect;
-    
-    /*
-    
+	
     glViewport(0, 0, Width, Height);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);        // This Will Clear The Background Color To Black
     glClearDepth(1.0);                // Enables Clearing Of The Depth Buffer
-    //glDepthFunc(GL_GREATER);                // The Type Of Depth Test To Do
-    //glEnable(GL_DEPTH_TEST);            // Enables Depth Testing
+    glDepthFunc(GL_GREATER);                // The Type Of Depth Test To Do
+    glEnable(GL_DEPTH_TEST);            // Enables Depth Testing
     glEnable( GL_TEXTURE_2D );
     glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
     glEnable (GL_BLEND);
@@ -1169,7 +1223,8 @@ void DrawGLScene(GLfloat * texcoord)
         glUseProgramObjectARB(shaders[current_shader].program);
     }
     
-    glBegin(GL_QUADS);                // start drawing a polygon (4 sided)
+	
+	glBegin(GL_QUADS);                // start drawing a polygon (4 sided)
     glTexCoord2f(texcoord[MINX], texcoord[MINY]);
     glVertex3f(-1.0f, 1.0f, 0.0f);        // Top Left
     glTexCoord2f(texcoord[MAXX], texcoord[MINY]);
@@ -1179,7 +1234,7 @@ void DrawGLScene(GLfloat * texcoord)
     glTexCoord2f(texcoord[MINX], texcoord[MAXY]);
     glVertex3f(-1.0f,-1.0f, 0.0f);        // Bottom Left
     glEnd();                    // done with the polygon
-    
+	
     if (shaders_supported) {
         glUseProgramObjectARB(0);
     }
@@ -1199,7 +1254,7 @@ event_loop (unsigned flags, int width, int height)
     
     SDL_Window *window;
     
-    //SDL_Surface *screen;
+    SDL_Surface *screen;
     
     cairo_t *cr;
     
@@ -1207,7 +1262,7 @@ event_loop (unsigned flags, int width, int height)
     
     cairo_surface_t *cs;
     
-    //GLfloat texcoords[4];
+    GLfloat texcoords[4];
     
     SDL_SysWMinfo windowInfo;
     SDL_GetVersion(&windowInfo.version);
@@ -1218,19 +1273,19 @@ event_loop (unsigned flags, int width, int height)
     
     SDL_SetHint(SDL_HINT_RENDER_VSYNC, "1");
     
-    /*
+	
     screen = SDL_CreateRGBSurface (
                                    SDL_SWSURFACE, width, height, 32,
                                    CAIROSDL_RMASK,
                                    CAIROSDL_GMASK,
                                    CAIROSDL_BMASK,
-                                   CAIROSDL_AMASK);*/
+                                   CAIROSDL_AMASK);
     
     window = SDL_CreateWindow("Unsafe System",
                               SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED,
                               WINDOW_WIDTH, WINDOW_HEIGHT,
-                              SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+                              SDL_WINDOW_SHOWN | SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_BORDERLESS);
     
     SDL_GetWindowWMInfo(window, &windowInfo);
 
@@ -1243,7 +1298,7 @@ event_loop (unsigned flags, int width, int height)
     
     device = cairo_nsgl_device_create(glcontext);
     
-    //cairo_gl_device_set_thread_aware(device, true);
+    cairo_gl_device_set_thread_aware(device, true);
     
     //cs = cairosdl_surface_create(screen);
     
@@ -1252,13 +1307,15 @@ event_loop (unsigned flags, int width, int height)
     //cs = cairo_gl_surface_create_for_texture(device, CAIRO_CONTENT_COLOR_ALPHA, texture, width, height);
     
     cs = cairo_gl_surface_create_for_view (device, testview, width, height);
-    
+	
     cr = cairo_create(cs);
+	
+	cairo_set_antialias(cr, CAIRO_ANTIALIAS_FAST);
+	
+    InitShaders();
     
-    //InitShaders();
-    
-    //SDL_GL_InitTexture(screen, texcoords, texture);
-    
+    SDL_GL_InitTexture(screen, texcoords, texture);
+
     /* Main render loop */
     int done = 0;
     while(!done){
@@ -1268,7 +1325,7 @@ event_loop (unsigned flags, int width, int height)
             if (event.type == SDL_QUIT ) {
                 done = 1;
             }
-            
+			
             if ( event.type == SDL_KEYDOWN ) {
                 if ( event.key.keysym.sym == SDLK_SPACE ) {
                     current_shader = (current_shader + 1) % NUM_SHADERS;
@@ -1277,8 +1334,15 @@ event_loop (unsigned flags, int width, int height)
                     done = 1;
                 }
             }
+			
+			if ( event.type == SDL_MOUSEMOTION)
+			{
+				mouseX = event.motion.x;
+				mouseY = event.motion.y;
+			}
             
         }
+		
         
         if (current_shader == 0){
             
@@ -1286,26 +1350,31 @@ event_loop (unsigned flags, int width, int height)
             //cairo_code_tape_move(cr);
             //cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
             
-            trap_render(cr, width, height);
+            trap_render(cr, cs, width, height);
             
         }
         
         if (current_shader == 1){
             
             
-            //cairo_code_tape_render(cairo_create(cairosdl_surface_create(screen)));
-            trap_render(cr, width, height);
+            //cairo_code_tape_render(cr);
+			
+			trap_render(cr, cs, width, height);
+			
+			//glReadPixels(0, 0, 512, 512, GL_RGBA, GL_UNSIGNED_BYTE, screen->pixels);
+			
+			SDL_GL_LoadTexture(screen, texcoords, texture);
+		
+			DrawGLScene(texcoords);
             
         }
-        
-        //SDL_GL_LoadTexture(screen, texcoords, texture);
-        
-        //DrawGLScene(texcoords);
-        
+	
         //cairo_gl_surface_swapbuffers (cs);
         
         // swap buffers to display, since we're double buffered.
-       SDL_GL_SwapWindow(window);
+        SDL_GL_SwapWindow(window);
+		
+		//cairo_surface_flush(cs);
         
         
         

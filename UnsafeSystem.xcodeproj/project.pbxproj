@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3B4573691DF8EA2D00B0DAD7 /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B4573681DF8EA2D00B0DAD7 /* AppKit.framework */; };
 		3B45736B1DF8EA3A00B0DAD7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B45736A1DF8EA3A00B0DAD7 /* Foundation.framework */; };
 		3B45736D1DF8EA4F00B0DAD7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B45736C1DF8EA4F00B0DAD7 /* Cocoa.framework */; };
 		8DC797E51AB4FB1C00A90029 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC797E41AB4FB1C00A90029 /* OpenGL.framework */; };
@@ -25,6 +24,7 @@
 		AB8D9F521E34BFE400D37B3A /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB5273051E2AA90D00C3CA8B /* libcairo.2.dylib */; };
 		AB8D9F541E34C03B00D37B3A /* librsvg-2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8D9F531E34C03B00D37B3A /* librsvg-2.dylib */; };
 		AB8D9F561E34C13A00D37B3A /* libglib-2.0.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8D9F551E34C13A00D37B3A /* libglib-2.0.0.dylib */; };
+		AB94A7471FCA758D00859EBC /* AppKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B4573681DF8EA2D00B0DAD7 /* AppKit.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,10 +107,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				AB94A7471FCA758D00859EBC /* AppKit.framework in Frameworks */,
 				AB8D9F4C1E347BD000D37B3A /* QuartzCore.framework in Frameworks */,
 				3B45736D1DF8EA4F00B0DAD7 /* Cocoa.framework in Frameworks */,
 				3B45736B1DF8EA3A00B0DAD7 /* Foundation.framework in Frameworks */,
-				3B4573691DF8EA2D00B0DAD7 /* AppKit.framework in Frameworks */,
 				8DC797E51AB4FB1C00A90029 /* OpenGL.framework in Frameworks */,
 				AB31F8231E3EB876006FDC31 /* SDL2.framework in Frameworks */,
 				AB31F82B1E516705006FDC31 /* SDL2_image.framework in Frameworks */,
