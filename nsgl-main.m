@@ -5,7 +5,7 @@
 #import <cairo-gl.h>
 #import <glib.h>
 #import <librsvg/rsvg.h>
-#import <SDL.h>
+//#import <SDL.h>
 #import <SDL_image.h>
 
 
@@ -1330,7 +1330,9 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 - (void)prepareOpenGL
 {
 	
-	[self.openGLContext makeCurrentContext];
+	[super prepareOpenGL];
+    
+    [self.openGLContext makeCurrentContext];
 	
 	GLint swapInt = 1;
 	
@@ -1359,7 +1361,7 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	
 	// Activate the display link
 	CVDisplayLinkStart(displayLink);
-	
+    
 	context = super.openGLContext;
 	
 	device = cairo_nsgl_device_create ((__bridge void *)(context));
@@ -1371,37 +1373,39 @@ const NSOpenGLPixelFormatAttribute attrs[] = {
 	cr = cairo_create (surface);
 	
 	while (cairo_status(cr) != 0)
-		{
-		cr = cairo_create (surface);
-		}
+    {
+        cr = cairo_create (surface);
+    }
 	
 	
 	//surface = cairo_image_surface_create_from_png("/Users/jessebennett/Documents/monster.png");
 	
 	startTime = CACurrentMediaTime();
 	
-	imagesurface = IMG_Load("/Users/jessebennett/Documents/monster.png");
+    //imagesurface = IMG_Load("/Users/jbennett/Documents/monster.png");
 	
-	//imagesurface->format->Amask = 0xFF000000;
+    //imagesurface->format->Amask = 0xFF000000;
 	
 	//SDL_SetColorKey(imagesurface, SDL_DONTFREE, imagesurface->format->Amask);
 	
-	surface = cairosdl_surface_create(imagesurface);
+	//surface = cairosdl_surface_create(imagesurface);
 	
 	initRects();
 	
-	//svg = rsvg_handle_new_from_file ("/Users/jessebennett/Documents/gstation.svg", NULL);
-	//rsvg_handle_get_dimensions (svg, &dims);
+	svg = rsvg_handle_new_from_file ("/Users/jbennett/Documents/crime-scene.svg", NULL);
+	rsvg_handle_get_dimensions (svg, &dims);
 	
 	cairo_font_options_set_antialias(cfo, CAIRO_ANTIALIAS_FAST);
 	
-	cairo_select_font_face(cr, "Marker Felt", CAIRO_FONT_SLANT_NORMAL,CAIRO_FONT_WEIGHT_NORMAL);
+	//cairo_select_font_face(cr, "Marker Felt", CAIRO_FONT_SLANT_NORMAL,CAIRO_FONT_WEIGHT_NORMAL);
 	
 	//blur_image_surface(surface, 45);
 	
 	cairo_set_antialias(cr, CAIRO_ANTIALIAS_FAST);
 	
-	//glEnable(GL_DOUBLEBUFFER);
+    glEnable(GL_DOUBLEBUFFER);
+    
+    [context setView: self];
 	
 }
 
@@ -1432,26 +1436,29 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 		
 		CFTimeInterval elapsedTime = CACurrentMediaTime() - startTime;
 		
-		
-		//trap_render(cr, surface, WIDTH, HEIGHT);
-		
+
 		//clearBackground(cr, surface);
 		
 	
-		//if(cr != NULL && surface != NULL && svg != NULL )
-	    //{
-		simulStep(spritex, spritey, spritewidth, spriteheight, spritexvelocity, spriteyvelocity, (double)elapsedTime / 1000);
+		if(cr != NULL && surface != NULL)
+	    {
 		
-		//drawSVG(cr, svg, dims, surface);
+            //simulStep(spritex, spritey, spritewidth, spriteheight, spritexvelocity, spriteyvelocity, (double)elapsedTime / 1000);
+            
+            
+            if( svg != NULL)
+            {
+                drawSVG(cr, svg, dims, surface);
+            }
 		
-		renderZone(cr, surface, WIDTH, HEIGHT);
-		
-		//helloWorld(cr, surface);
-		drawPNG(cr, surface);
+            //renderZone(cr, surface, WIDTH, HEIGHT);
+            //trap_render(cr, surface, WIDTH, HEIGHT);
+            //helloWorld(cr, surface);
+            //drawPNG(cr, surface);
 	
-		//mobPNG(cr,surface);
+            //mobPNG(cr,surface);
 		
-		//}
+		}
 		
 		//drawSVG(cr, svg, dims, surface);
 		

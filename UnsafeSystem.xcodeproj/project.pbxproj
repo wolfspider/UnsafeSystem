@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		3B45736B1DF8EA3A00B0DAD7 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B45736A1DF8EA3A00B0DAD7 /* Foundation.framework */; };
 		3B45736D1DF8EA4F00B0DAD7 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B45736C1DF8EA4F00B0DAD7 /* Cocoa.framework */; };
+		3B917925224AC6F6004BAA48 /* nsgl-main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B917924224AC6F6004BAA48 /* nsgl-main.m */; };
 		8DC797E51AB4FB1C00A90029 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC797E41AB4FB1C00A90029 /* OpenGL.framework */; };
 		AB0180041E2C8043000B0D49 /* SDL2.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB5273321E2B554E00C3CA8B /* SDL2.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		AB0180051E2C8052000B0D49 /* libcairo.2.dylib in CopyFiles */ = {isa = PBXBuildFile; fileRef = AB5273051E2AA90D00C3CA8B /* libcairo.2.dylib */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
@@ -17,7 +18,6 @@
 		AB31F82C1E516705006FDC31 /* SDL2_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB31F82A1E516705006FDC31 /* SDL2_image.framework */; };
 		AB52731F1E2B414E00C3CA8B /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = AB52731E1E2B414E00C3CA8B /* main.cpp */; };
 		AB5273241E2B41B100C3CA8B /* libcairo.2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = AB5273051E2AA90D00C3CA8B /* libcairo.2.dylib */; };
-		AB52733A1E2B562500C3CA8B /* nsgl-main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B4573661DF8E91B00B0DAD7 /* nsgl-main.m */; };
 		AB52733B1E2B56C800C3CA8B /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB5273321E2B554E00C3CA8B /* SDL2.framework */; };
 		AB52733C1E2B573000C3CA8B /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8DC797E41AB4FB1C00A90029 /* OpenGL.framework */; };
 		AB8D9F4C1E347BD000D37B3A /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AB8D9F4B1E347BD000D37B3A /* QuartzCore.framework */; };
@@ -82,10 +82,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3B4573661DF8E91B00B0DAD7 /* nsgl-main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = "nsgl-main.m"; path = "../nsgl-main.m"; sourceTree = "<group>"; };
 		3B4573681DF8EA2D00B0DAD7 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
 		3B45736A1DF8EA3A00B0DAD7 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		3B45736C1DF8EA4F00B0DAD7 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		3B917924224AC6F6004BAA48 /* nsgl-main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "nsgl-main.m"; sourceTree = SOURCE_ROOT; };
 		3BBC0B1B1DF2AAF900F01380 /* UnsafeSystem.profdata */ = {isa = PBXFileReference; lastKnownFileType = file; path = UnsafeSystem.profdata; sourceTree = "<group>"; };
 		8DC797D71AB4F9C900A90029 /* cairosdl.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = cairosdl.h; sourceTree = "<group>"; };
 		8DC797DC1AB4FAE800A90029 /* UnsafeApp */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = UnsafeApp; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -185,7 +185,7 @@
 		8DC797DE1AB4FAE800A90029 /* UnsafeApp */ = {
 			isa = PBXGroup;
 			children = (
-				3B4573661DF8E91B00B0DAD7 /* nsgl-main.m */,
+				3B917924224AC6F6004BAA48 /* nsgl-main.m */,
 			);
 			path = UnsafeApp;
 			sourceTree = "<group>";
@@ -268,6 +268,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 			);
 			mainGroup = 8DC797CF1AB4F91B00A90029;
@@ -323,7 +324,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				AB52733A1E2B562500C3CA8B /* nsgl-main.m in Sources */,
+				3B917925224AC6F6004BAA48 /* nsgl-main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -430,13 +431,13 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"/Users/jessebennett/Documents/UnsafeLibs/cairo-nsgl/src",
-					"/Users/jessebennett/Documents/SDL2-2.0.3/include/",
+					"/Users/jbennett/Documents/UnsafeLibs/cairo-nsgl/src",
+					"/Users/jbennett/Documents/SDL2-2.0.9/include/",
 					"/usr/local/include/librsvg-2.0/",
 					"/usr/local/include/glib-2.0/",
 					"/usr/local/lib/glib-2.0/include/",
 					"/usr/local/include/gdk-pixbuf-2.0/",
-					/Library/Frameworks/SDL2_image.framework/Headers,
+					/usr/local/include/SDL2,
 				);
 				"HEADER_SEARCH_PATHS[arch=*]" = (
 					"$(inherited)",
@@ -522,7 +523,7 @@
 		AB5273211E2B414E00C3CA8B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -550,8 +551,8 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"/Users/jessebennett/Documents/SDL2-2.0.3/include",
-					"/Users/jessebennett/Documents/UnsafeLibs/cairo-nsgl/src",
+					"/Users/jbennett/Documents/SDL2-2.0.9/include",
+					"/Users/jbennett/Documents/UnsafeLibs/cairo-nsgl/src",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
@@ -568,7 +569,7 @@
 		AB5273221E2B414E00C3CA8B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
+				ALWAYS_SEARCH_USER_PATHS = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -591,8 +592,8 @@
 				HEADER_SEARCH_PATHS = (
 					"$(inherited)",
 					/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include,
-					"/Users/jessebennett/Documents/SDL2-2.0.3/include",
-					"/Users/jessebennett/Documents/UnsafeLibs/cairo-nsgl/src",
+					"/Users/jbennett/Documents/SDL2-2.0.9/include",
+					"/Users/jbennett/Documents/UnsafeLibs/cairo-nsgl/src",
 				);
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
